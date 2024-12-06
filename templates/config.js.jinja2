@@ -1,0 +1,30 @@
+const CONFIG = {
+    // Интервалы обновления
+    UPDATE_INTERVAL: {{ config.UPDATE_INTERVAL }},
+    CHART_UPDATE_INTERVAL: {{ config.CHART_UPDATE_INTERVAL }},
+    CLOSED_PNL_UPDATE_INTERVAL: {{ config.CLOSED_PNL_UPDATE_INTERVAL }},
+    
+    // График
+    CHART: {
+        MAX_POINTS: {{ config.CHART_MAX_POINTS }},
+        COLORS: {{ config.CHART_COLORS | tojson }},
+        TIME_FORMAT: {
+            hour: '2-digit',
+            minute: '2-digit'
+        }
+    },
+
+    // Значения по умолчанию
+    DEFAULTS: {
+        PNL_THRESHOLD: {{ config.DEFAULT_PNL_THRESHOLD }},
+        SORT_ORDER: '{{ config.DEFAULT_SORT_ORDER }}',
+        PAGE_SIZE: {{ config.DEFAULT_PAGE_SIZE }},
+        THEME: '{{ config.DEFAULT_THEME }}'
+    },
+
+    // Настройки темы
+    THEME_COLORS: {{ config.THEME_COLORS | tojson }},
+
+    // Настройки сортировки
+    SORT_OPTIONS: {{ config.SORT_OPTIONS | tojson }}
+}; 

@@ -1,0 +1,134 @@
+# Инструкция по установке и запуску Bybit Position Monitor
+
+### 0. Системные требования
+
+- Python версия: 3.9 - 3.11 (рекомендуется Python 3.10)
+- Современный веб-браузер
+- Подключение к интернету
+- API ключи Bybit с правами на чтение
+
+### 1. Установка Python
+
+#### Windows:
+1. Скачайте Python 3.10 с официального сайта: https://www.python.org/downloads/windows/
+2. Запустите установщик
+3. ✅ Обязательно отметьте галочку "Add Python to PATH"
+4. Нажмите "Install Now"
+5. Проверьте установку через командную строку (Win+R → cmd):
+   ```
+   python --version
+   pip --version
+   ```
+
+#### MacOS:
+1. Установите Homebrew (если еще не установлен):
+   ```
+   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+   ```
+2. Установите Python:
+   ```
+   brew install python@3.10
+   ```
+3. Проверьте установку:
+   ```
+   python3 --version
+   pip3 --version
+   ```
+
+#### Linux (Ubuntu/Debian):
+```bash
+sudo apt update
+sudo apt install python3.10 python3.10-venv python3-pip git
+```
+
+### 2. Установка приложения
+
+1. Скачайте или клонируйте репозиторий:
+   ```bash
+   git clone [repository_url]
+   cd bybit-position-monitor
+   ```
+
+2. Создайте виртуальное окружение:
+   ```bash
+   python -m venv venv
+   ```
+
+3. Активируйте виртуальное окружение:
+   - Windows: `venv\Scripts\activate`
+   - Linux/MacOS: `source venv/bin/activate`
+
+4. Установите зависимости:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### 3. Настройка
+
+1. Создайте файл .env в корневой директории:
+   ```
+   API_KEY=ваш_api_ключ
+   API_SECRET=ваш_api_секрет
+   ```
+
+2. Настройте config.py под свои требования:
+   - Порт (по умолчанию 5000)
+   - Интервалы обновления
+   - Пороговые значения
+
+### 4. Запуск
+
+1. Активируйте виртуальное окружение (если не активировано)
+2. Запустите приложение:
+   ```bash
+   python app.py
+   ```
+3. Откройте браузер: http://localhost:5000
+
+### 5. Автозапуск (опционально)
+
+#### Windows:
+1. Создайте .bat файл с командами запуска
+2. Добавьте его в автозагрузку Windows
+
+#### Linux:
+1. Создайте systemd сервис
+2. Включите и запустите сервис
+
+### 6. Обновление
+
+```bash
+git pull
+pip install -r requirements.txt
+```
+
+### 7. Поддержка
+
+При возникновении проблем:
+1. Проверьте лог-файлы в папке logs/
+2. Создайте issue в репозитории
+3. Свяжитесь с разработчиком
+
+### 8. Безопасность
+
+- Используйте только API ключи с правами на чтение
+- Храните .env файл в безопасном месте
+- Регулярно обновляйте зависимости
+
+### Настройка Telegram уведомлений
+
+1. Создайте бота в Telegram:
+   - Напишите @BotFather
+   - Создайте нового бота командой /newbot
+   - Сохраните полученный токен
+
+2. Получите ID чата:
+   - Добавьте бота в нужный чат
+   - Напишите любое сообщение
+   - Перейдите по URL: https://api.telegram.org/bot<YourBOTToken>/getUpdates
+   - Найдите "chat":{"id":XXXXXXXXX}
+
+3. Настройте config.py:
+   - Добавьте полученный токен в TELEGRAM_BOT_TOKEN
+   - Добавьте ID чата в TELEGRAM_CHAT_ID
+   - Настройте параметры уведомлений в TELEGRAM_NOTIFY
