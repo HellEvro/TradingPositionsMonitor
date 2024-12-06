@@ -1,134 +1,101 @@
-# Инструкция по установке и запуску Bybit Position Monitor
+# Инструкция по установке и запуску Trading Positions Monitor
 
-### 0. Системные требования
+## 1. Системные требования
 
-- Python версия: 3.9 - 3.11 (рекомендуется Python 3.10)
+- Python 3.9 - 3.11 (рекомендуется Python 3.10)
 - Современный веб-браузер
 - Подключение к интернету
-- API ключи Bybit с правами на чтение
+- API ключи поддерживаемых бирж
 
-### 1. Установка Python
+## 2. Установка Python
 
-#### Windows:
-1. Скачайте Python 3.10 с официального сайта: https://www.python.org/downloads/windows/
-2. Запустите установщик
-3. ✅ Обязательно отметьте галочку "Add Python to PATH"
-4. Нажмите "Install Now"
-5. Проверьте установку через командную строку (Win+R → cmd):
-   ```
-   python --version
-   pip --version
-   ```
+### Windows:
+1. Скачайте Python 3.10: https://www.python.org/downloads/windows/
+2. При установке отметьте "Add Python to PATH"
+3. Проверьте установку: `python --version`
 
-#### MacOS:
-1. Установите Homebrew (если еще не установлен):
-   ```
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-2. Установите Python:
-   ```
-   brew install python@3.10
-   ```
-3. Проверьте установку:
-   ```
-   python3 --version
-   pip3 --version
-   ```
-
-#### Linux (Ubuntu/Debian):
+### Linux (Ubuntu/Debian):
 ```bash
 sudo apt update
 sudo apt install python3.10 python3.10-venv python3-pip git
 ```
 
-### 2. Установка приложения
+### MacOS:
+```bash
+brew install python@3.10
+```
 
-1. Скачайте или клонируйте репозиторий:
-   ```bash
-   git clone [repository_url]
-   cd bybit-position-monitor
-   ```
+## 3. Установка приложения
 
-2. Создайте виртуальное окружение:
-   ```bash
-   python -m venv venv
-   ```
+1. Клонируйте репозиторий:
+```bash
+git clone https://github.com/yourusername/trading-positions-monitor.git
+cd trading-positions-monitor
+```
 
-3. Активируйте виртуальное окружение:
-   - Windows: `venv\Scripts\activate`
-   - Linux/MacOS: `source venv/bin/activate`
+2. Создайте и активируйте виртуальное окружение:
+```bash
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+```
 
-4. Установите зависимости:
-   ```bash
-   pip install -r requirements.txt
-   ```
+3. Установите зависимости:
+```bash
+pip install -r requirements.txt
+```
 
-### 3. Настройка
+## 4. Настройка
 
-1. Создайте файл .env в корневой директории:
-   ```
-   API_KEY=ваш_api_ключ
-   API_SECRET=ваш_api_секрет
-   ```
+1. Создайте файлы конфигурации:
+```bash
+cp app/config.example.py app/config.py
+cp app/keys.example.py app/keys.py
+```
 
-2. Настройте config.py под свои требования:
-   - Порт (по умолчанию 5000)
-   - Интервалы обновления
-   - Пороговые значения
+2. Настройте API ключи в keys.py:
+```python
+EXCHANGES = {
+    'BYBIT': {
+        'enabled': True,
+        'api_key': "your_api_key",
+        'api_secret': "your_api_secret",
+        ...
+    },
+    ...
+}
+```
 
-### 4. Запуск
+3. (Опционально) Настройте Telegram:
+- Создайте бота через @BotFather
+- Получите chat_id
+- Добавьте данные в keys.py
 
-1. Активируйте виртуальное окружение (если не активировано)
+## 5. Запуск
+
+1. Активируйте виртуальное окружение
 2. Запустите приложение:
-   ```bash
-   python app.py
-   ```
-3. Откройте браузер: http://localhost:5000
+```bash
+python app.py
+```
+3. Откройте http://localhost:5000
 
-### 5. Автозапуск (опционально)
-
-#### Windows:
-1. Создайте .bat файл с командами запуска
-2. Добавьте его в автозагрузку Windows
-
-#### Linux:
-1. Создайте systemd сервис
-2. Включите и запустите сервис
-
-### 6. Обновление
+## 6. Обновление
 
 ```bash
 git pull
 pip install -r requirements.txt
 ```
 
-### 7. Поддержка
+## 7. Решение проблем
 
-При возникновении проблем:
-1. Проверьте лог-файлы в папке logs/
-2. Создайте issue в репозитории
-3. Свяжитесь с разработчиком
+1. Проверьте логи в папке logs/
+2. Убедитесь в правильности API ключей
+3. Проверьте подключение к биржам
+4. Проверьте версии зависимостей
 
-### 8. Безопасность
+## 8. Безопасность
 
-- Используйте только API ключи с правами на чтение
-- Храните .env файл в безопасном месте
+- Используйте только необходимые разрешения для API ключей
+- Не публикуйте keys.py
 - Регулярно обновляйте зависимости
-
-### Настройка Telegram уведомлений
-
-1. Создайте бота в Telegram:
-   - Напишите @BotFather
-   - Создайте нового бота командой /newbot
-   - Сохраните полученный токен
-
-2. Получите ID чата:
-   - Добавьте бота в нужный чат
-   - Напишите любое сообщение
-   - Перейдите по URL: https://api.telegram.org/bot<YourBOTToken>/getUpdates
-   - Найдите "chat":{"id":XXXXXXXXX}
-
-3. Настройте config.py:
-   - Добавьте полученный токен в TELEGRAM_BOT_TOKEN
-   - Добавьте ID чата в TELEGRAM_CHAT_ID
-   - Настройте параметры уведомлений в TELEGRAM_NOTIFY
+- При внешнем доступе используйте SSL
