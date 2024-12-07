@@ -39,6 +39,8 @@ class App {
                 this.initDOM();
             }
             
+            this.initializeGlobalSearch();
+            
         } catch (e) {
             console.error('[APP] Error in constructor:', e);
         }
@@ -332,16 +334,18 @@ class App {
     updateClosedPnlTable(data, resetPage) {
         if (!data) return;
         
+        // Сохраняем все данные
+        if (!this.allClosedPnlData || this.allClosedPnlData.length === 0) {
+            this.allClosedPnlData = data;
+        }
+        
         // Получаем текущий поисковый запрос
         const searchQuery = document.getElementById('tickerSearch')?.value.toUpperCase() || '';
         
         // Фильтруем данные по поисковому запросу
         const filteredData = searchQuery ? 
-            data.filter(pnl => pnl.symbol.includes(searchQuery)) : 
-            data;
-        
-        // Сохраняем отфильтрованные данные
-        this.allClosedPnlData = filteredData;
+            this.allClosedPnlData.filter(pnl => pnl.symbol.includes(searchQuery)) : 
+            this.allClosedPnlData;
         
         // Получаем текущую страницу и размер страницы
         const pageSize = parseInt(storageUtils.get('pageSize', DEFAULTS.PAGE_SIZE));
@@ -483,7 +487,7 @@ class App {
                 if (symbol) activePairs.add(symbol);
             });
 
-            // Получаем все доступные пары с биржи
+            // Получаем все доступные пары с бирж��
             const exchange = this.exchangeManager.getSelectedExchange();
             const allPairs = await this.exchangeManager.getAllPairs();
             
@@ -499,13 +503,13 @@ class App {
     }
 
     filterAvailablePairs(searchQuery) {
-        const query = searchQuery.toLowerCase();
+        const query = searchQuery.toUpperCase();
         const pairsList = document.getElementById('availablePairsList');
         
         if (!pairsList) return;
 
         Array.from(pairsList.children).forEach(item => {
-            const symbol = item.textContent.toLowerCase();
+            const symbol = item.textContent.toUpperCase();
             item.style.display = symbol.includes(query) ? '' : 'none';
         });
     }
@@ -534,9 +538,74 @@ class App {
                 pairsList.appendChild(div);
             });
     }
+
+    initializeGlobalSearch() {
+        const searchInput = document.getElementById('tickerSearch');
+        const clearButton = document.getElementById('clearSearch');
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.toUpperCase();
+                
+                // Показываем/скрываем кнопку очистки
+                if (clearButton) {
+                    clearButton.style.display = query ? 'block' : 'none';
+                }
+                
+                // Фильтрация в зависимости от текущей вкладки
+                if (this.currentTab === 'positions') {
+                    // Фильтруем позиции
+                    document.querySelectorAll('.position').forEach(position => {
+                        const symbol = position.getAttribute('data-symbol');
+                        if (symbol) {
+                            position.style.display = symbol.includes(query) ? '' : 'none';
+                        }
+                    });
+                    
+                    // Обновляем счетчики позиций
+                    this.updatePositionCounts();
+                    
+                } else if (this.currentTab === 'trading') {
+                    // Фильтруем доступные пары
+                    this.filterAvailablePairs(query);
+                    
+                } else if (this.currentTab === 'closedPnl') {
+                    // Обновляем таблицу закрытых позиций с сохраненными данными
+                    this.updateClosedPnlTable(this.allClosedPnlData, true);
+                }
+            });
+            
+            // Обработчик для кнопки очистки
+            if (clearButton) {
+                clearButton.addEventListener('click', () => {
+                    searchInput.value = '';
+                    clearButton.style.display = 'none';
+                    
+                    // Вызываем событие input для обновления фильтрации
+                    const inputEvent = new Event('input');
+                    searchInput.dispatchEvent(inputEvent);
+                });
+            }
+        }
+    }
+
+    // Вспомогательный метод для обновления счетчиков позиций
+    updatePositionCounts() {
+        const containers = ['high-profitable', 'profitable', 'losing'];
+        
+        containers.forEach(type => {
+            const container = document.getElementById(`${type}-positions`);
+            const countElement = document.querySelector(`#${type}-positions-header .position-count`);
+            
+            if (container && countElement) {
+                const visiblePositions = container.querySelectorAll('.position[style=""]').length;
+                countElement.textContent = `(${visiblePositions})`;
+            }
+        });
+    }
 }
 
-// В начале файла добавим функции ��ля работы с localStorage
+// В начале файла добавим функции для работы с localStorage
 function saveFilterState(containerId, value) {
     localStorage.setItem(`sort_${containerId}`, value);
 }

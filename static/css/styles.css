@@ -41,6 +41,7 @@
     --border-color: #ddd;
 }
 
+/* Базовые стили */
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
@@ -48,53 +49,44 @@ body {
     color: var(--text-color);
 }
 
-/* Базовые стили */
-.column-header {
+/* Лейаут */
+.main-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-md);
-    border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0;
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.positions-container {
+    flex: 1;
 }
 
-.sort-container {
-    margin: 0 var(--spacing-md);
-    min-width: 140px;
+.stats-container {
+    width: 300px;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
 }
 
-.sort-select {
-    width: 100%;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-sm);
-    background: var(--bg-color);
-    color: var(--text-color);
-    cursor: pointer;
-    transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+.stats-container::-webkit-scrollbar {
+    width: 8px;
 }
 
-/* Контролы и меню */
-.theme-switch {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    cursor: pointer;
-    padding: 10px 20px;
-    border-radius: 5px;
-    background-color: var(--section-bg);
-    border: 1px solid var(--border-color);
-    color: var(--text-color);
-    transition: all 0.3s ease;
+.stats-container::-webkit-scrollbar-track {
+    background: var(--section-bg);
+    border-radius: 4px;
 }
 
-/* Контейнеры позиций */
+.stats-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.stats-container::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
 .row-container {
     display: flex;
     gap: 20px;
@@ -109,7 +101,26 @@ body {
     min-width: 0;
 }
 
-/* Заголовки колонок */
+/* Секции */
+.section {
+    background-color: var(--section-bg);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+/* Заголовки и контролы */
+.column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+}
+
 .header-content {
     display: flex;
     justify-content: space-between;
@@ -119,6 +130,19 @@ body {
     margin: -20px -20px 15px -20px;
     border-radius: 8px 8px 0 0;
     background: rgba(255, 255, 255, 0.02);
+}
+
+.theme-switch {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: var(--section-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    transition: all var(--transition-normal) ease;
 }
 
 /* Позиции */
@@ -138,33 +162,18 @@ body {
     border-left-color: var(--red-color);
 }
 
-/* Тикер и значения */
-.ticker {
-    font-size: 14px;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.pnl-value {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-/* ROI и сторона позиции */
 .position-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-top: 10px;
-    font-size: 12px;
+    font-size: var(--font-size-xs);
 }
 
 .position-side {
     padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 12px;
+    border-radius: var(--border-radius-sm);
+    font-size: var(--font-size-xs);
 }
 
 .position-side.long {
@@ -177,28 +186,55 @@ body {
     color: var(--red-color);
 }
 
-/* Мини-график */
-.mini-chart {
-    width: 60px;
-    height: 24px;
-    background: var(--section-bg);
-    border-radius: 2px;
+/* Тикер и значения */
+.ticker {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pnl-value {
+    font-size: var(--font-size-sm);
+    font-weight: 500;
+}
+
+.positive-pnl {
+    color: var(--green-color);
+}
+
+.negative-pnl {
+    color: var(--red-color);
 }
 
 /* Сортировка */
 .sort-container {
+    margin: 0 var(--spacing-md);
+    min-width: 140px;
     padding: 10px 15px;
     border-bottom: 1px solid var(--border-color);
     margin: -15px -15px 15px -15px;
 }
 
 .sort-select {
-    padding: 5px 10px;
+    width: 100%;
+    padding: var(--spacing-xs) var(--spacing-sm);
     border: 1px solid var(--border-color);
-    border-radius: 4px;
+    border-radius: var(--border-radius-sm);
     background: var(--bg-color);
     color: var(--text-color);
-    font-size: 12px;
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Мини-график */
+.mini-chart {
+    width: 60px;
+    height: 24px;
+    background: var(--section-bg);
+    border-radius: var(--border-radius-sm);
 }
 
 /* Таблица закрытых позиций */
@@ -207,7 +243,7 @@ body {
     border-collapse: collapse;
     margin-top: 20px;
     background: var(--section-bg);
-    border-radius: 8px;
+    border-radius: var(--border-radius-lg);
     overflow: hidden;
 }
 
@@ -221,20 +257,11 @@ body {
 .pnl-table th {
     background: rgba(255, 255, 255, 0.02);
     font-weight: 500;
-    font-size: 14px;
+    font-size: var(--font-size-sm);
 }
 
 .pnl-table td {
-    font-size: 14px;
-}
-
-/* Значения PnL */
-.positive-pnl {
-    color: var(--green-color);
-}
-
-.negative-pnl {
-    color: var(--red-color);
+    font-size: var(--font-size-sm);
 }
 
 /* Пагинация */
@@ -248,222 +275,19 @@ body {
 
 .pagination-btn {
     padding: 8px 20px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
     background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
     color: var(--text-color);
     cursor: pointer;
-    font-size: 14px;
+    transition: all var(--transition-normal) ease;
+}
+
+.pagination-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
 }
 
 .pagination-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-#pageInfo {
-    font-size: 14px;
-}
-
-/* Контролы таблицы */
-.table-controls {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.page-size-control {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.page-size-select,
-.sort-select {
-    padding: 5px 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--section-bg);
-    color: var(--text-color);
-    font-size: 14px;
-    cursor: pointer;
-}
-
-/* Заголовок страницы */
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.page-title {
-    font-size: 20px;
-    font-weight: 500;
-}
-
-/* Верхняя панель */
-.top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    background: var(--section-bg);
-    border-radius: 8px;
-    margin-bottom: 20px;
-}
-
-/* Поиск */
-.search-input {
-    padding: 8px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--bg-color);
-    color: var(--text-color);
-    width: 200px;
-    font-size: 14px;
-}
-
-/* Контролы справа */
-.controls-panel {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.control-item {
-    padding: 6px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--section-bg);
-    color: var(--text-color);
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.exchange-select {
-    padding: 6px 12px;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    background: var(--section-bg);
-    color: var(--text-color);
-    cursor: pointer;
-    font-size: 14px;
-}
-
-/* График и статистика */
-.chart-container {
-    width: 100%;
-    height: 200px;
-    margin-bottom: 20px;
-}
-
-.stats-container {
-    width: 300px;
-    position: sticky;
-    top: 20px;
-    height: calc(100vh - 100px);
-    overflow-y: auto;
-}
-
-.stats-value {
-    font-size: 14px;
-    font-weight: 500;
-    margin: 5px 0;
-}
-
-.stats-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 5px 0;
-}
-
-/* Цветовые индикаторы */
-.positive {
-    color: var(--green-color);
-}
-
-.negative {
-    color: var(--red-color);
-}
-
-.blue {
-    color: var(--blue-color);
-}
-
-/* Быстрорастущие позиции */
-.rapid-growth {
-    background: var(--section-bg);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
-}
-
-.rapid-growth-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-    color: #FF8C00;
-    font-weight: 500;
-}
-
-.rapid-growth-item {
-    display: inline-block;
-    margin-right: 10px;
-    margin-bottom: 10px;
-    padding: 5px 10px;
-    border-radius: 4px;
-    background: rgba(255, 140, 0, 0.1);
-    border: 1px solid #FF8C00;
-    font-size: 14px;
-}
-
-/* Удаляем комментарий "и так далее" */
-
-.position-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.close-position-btn {
-    background: none;
-    border: none;
-    color: var(--text-color);
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
-    opacity: 0.7;
-    transition: all 0.2s;
-    font-size: 14px;
-    user-select: none;
-    -webkit-user-select: none;
-}
-
-.close-position-btn:active {
-    transform: scale(0.95);
-}
-
-.close-position-btn:hover {
-    opacity: 1;
-    background: rgba(244, 67, 54, 0.1);
-    color: #f44336;
-}
-
-.position.processing {
-    pointer-events: none;
-    opacity: 0.7;
-}
-
-.position.processing .close-position-btn {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.menu-title {
-    font-weight: 500;
-    margin-left: 5px;
 } 
