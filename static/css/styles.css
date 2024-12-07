@@ -1,5 +1,4 @@
 :root {
-    /* Цвета */
     --bg-color: #1a1a1a;
     --text-color: #fff;
     --section-bg: #2d2d2d;
@@ -7,31 +6,6 @@
     --green-color: #4CAF50;
     --red-color: #f44336;
     --blue-color: #1e88e5;
-
-    /* Размеры */
-    --border-radius-sm: 3px;
-    --border-radius-md: 4px;
-    --border-radius-lg: 8px;
-    --spacing-xs: 4px;
-    --spacing-sm: 8px;
-    --spacing-md: 10px;
-    --spacing-lg: 16px;
-    --spacing-xl: 20px;
-    
-    /* Шрифты */
-    --font-size-xs: 0.85em;
-    --font-size-sm: 0.9em;
-    --font-size-md: 1em;
-    --font-size-lg: 1.1em;
-    
-    /* Тени */
-    --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
-    --shadow-md: 0 2px 8px rgba(0,0,0,0.2);
-    --shadow-lg: 0 4px 12px rgba(0,0,0,0.3);
-    
-    /* Анимации */
-    --transition-fast: 0.2s;
-    --transition-normal: 0.3s;
 }
 
 [data-theme="light"] {
@@ -41,95 +15,11 @@
     --border-color: #ddd;
 }
 
-/* Базовые стили */
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
     background-color: var(--bg-color);
     color: var(--text-color);
-}
-
-/* Лейаут */
-.main-container {
-    display: flex;
-    gap: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-}
-
-.positions-container {
-    flex: 1;
-}
-
-.stats-container {
-    width: 300px;
-    position: sticky;
-    top: 80px;
-    height: calc(100vh - 100px);
-    overflow-y: auto;
-}
-
-.stats-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.stats-container::-webkit-scrollbar-track {
-    background: var(--section-bg);
-    border-radius: 4px;
-}
-
-.stats-container::-webkit-scrollbar-thumb {
-    background: var(--border-color);
-    border-radius: 4px;
-}
-
-.stats-container::-webkit-scrollbar-thumb:hover {
-    background: #666;
-}
-
-.row-container {
-    display: flex;
-    gap: 20px;
-    margin: 20px;
-}
-
-.third-width {
-    flex: 1;
-    background: var(--section-bg);
-    border-radius: 8px;
-    padding: 20px;
-    min-width: 0;
-}
-
-/* Секции */
-.section {
-    background-color: var(--section-bg);
-    padding: 20px;
-    margin-bottom: 20px;
-    border-radius: 5px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
-}
-
-/* Заголовки и контролы */
-.column-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--spacing-md);
-    border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0;
-}
-
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
-    border-bottom: 1px solid var(--border-color);
-    margin: -20px -20px 15px -20px;
-    border-radius: 8px 8px 0 0;
-    background: rgba(255, 255, 255, 0.02);
 }
 
 .theme-switch {
@@ -142,129 +32,220 @@ body {
     background-color: var(--section-bg);
     border: 1px solid var(--border-color);
     color: var(--text-color);
-    transition: all var(--transition-normal) ease;
+    transition: all 0.3s ease;
 }
 
-/* Позиции */
-.position {
-    padding: 15px;
-    margin-bottom: 10px;
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 6px;
-    border-left: 3px solid var(--border-color);
-}
-
-.position.profitable {
-    border-left-color: var(--green-color);
-}
-
-.position.losing {
-    border-left-color: var(--red-color);
-}
-
-.position-footer {
+.main-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-    font-size: var(--font-size-xs);
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
-
-.position-side {
-    padding: 2px 8px;
-    border-radius: var(--border-radius-sm);
-    font-size: var(--font-size-xs);
+.positions-container {
+    flex: 1;
 }
-
-.position-side.long {
-    background: rgba(76, 175, 80, 0.1);
-    color: var(--green-color);
+.stats-container {
+    width: 300px;
+    position: sticky;
+    top: 80px;
+    height: calc(100vh - 100px);
+    overflow-y: auto;
 }
-
-.position-side.short {
-    background: rgba(244, 67, 54, 0.1);
-    color: var(--red-color);
+.stats-container::-webkit-scrollbar {
+    width: 8px;
 }
-
-/* Тикер и значения */
-.ticker {
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.pnl-value {
-    font-size: var(--font-size-sm);
-    font-weight: 500;
-}
-
-.positive-pnl {
-    color: var(--green-color);
-}
-
-.negative-pnl {
-    color: var(--red-color);
-}
-
-/* Сортировка */
-.sort-container {
-    margin: 0 var(--spacing-md);
-    min-width: 140px;
-    padding: 10px 15px;
-    border-bottom: 1px solid var(--border-color);
-    margin: -15px -15px 15px -15px;
-}
-
-.sort-select {
-    width: 100%;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-sm);
-    background: var(--bg-color);
-    color: var(--text-color);
-    cursor: pointer;
-    font-size: var(--font-size-xs);
-    transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Мини-график */
-.mini-chart {
-    width: 60px;
-    height: 24px;
+.stats-container::-webkit-scrollbar-track {
     background: var(--section-bg);
-    border-radius: var(--border-radius-sm);
+    border-radius: 4px;
+}
+.stats-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+.stats-container::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+.section {
+    background-color: var(--section-bg);
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    border: 1px solid var(--border-color);
+}
+.position {
+    border-left: 3px solid var(--border-color);
+    padding: 10px;
+    margin: 10px 0;
+    background-color: var(--section-bg);
+    font-size: 0.9em;
+}
+.profitable {
+    border-left-color: #4CAF50;
+}
+.losing {
+    border-left-color: #f44336;
+}
+.high-roi {
+    color: #4CAF50;
+    font-weight: bold;
+}
+.high-loss {
+    color: #f44336;
+    font-weight: bold;
+}
+.last-update {
+    color: var(--text-color);
+    opacity: 0.8;
+    font-size: 0.9em;
+}
+.stats-value {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 10px 0;
+}
+.positive {
+    color: #4CAF50;
+}
+.negative {
+    color: #f44336;
+}
+.row-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.half-width {
+    flex: 1;
+}
+#top-profitable, #top-losing {
+    margin: 10px 0;
 }
 
-/* Таблица закрытых позиций */
+#top-profitable .stats-value, #top-losing .stats-value {
+    font-size: 1em;
+    margin: 5px 0;
+}
+.row-container {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+.third-width {
+    flex: 1;
+    min-width: 0; /* Предотвратить переполнение flex-контейнера */
+}
+.positions-container {
+    flex: 1;
+    max-width: calc(100% - 320px); /* Учитываем ширину stats-container и gap */
+}
+.main-container {
+    max-width: 1600px; /* Увеличиваем максимальную ширину для лучшего отображения трех колонок */
+}
+.ticker {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+.chart-container {
+    width: 100%;
+    height: 200px;
+    margin-bottom: 20px;
+}
+.ticker a {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.ticker a:hover {
+    text-decoration: underline;
+}
+
+/* Обновляем стили для тикеров в TOP-3 */
+.stats-value a.ticker {
+    color: var(--text-color);  /* Используем цвет текста из темы */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.stats-value a.ticker:hover {
+    text-decoration: underline;
+}
+.tab-button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: var(--section-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.tab-button.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
 .pnl-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background: var(--section-bg);
-    border-radius: var(--border-radius-lg);
-    overflow: hidden;
 }
 
-.pnl-table th, 
-.pnl-table td {
-    padding: 12px 15px;
+.pnl-table th, .pnl-table td {
+    padding: 12px;
     text-align: left;
     border-bottom: 1px solid var(--border-color);
 }
 
 .pnl-table th {
-    background: rgba(255, 255, 255, 0.02);
-    font-weight: 500;
-    font-size: var(--font-size-sm);
+    background-color: var(--section-bg);
+    font-weight: bold;
 }
 
-.pnl-table td {
-    font-size: var(--font-size-sm);
+.pnl-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
-/* Пагинация */
+.positive-pnl {
+    color: #4CAF50;
+}
+
+.negative-pnl {
+    color: #f44336;
+}
+.sort-select {
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--section-bg);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+/* Обновляем стили для всех тикеров */
+.ticker a, 
+.pnl-table td a,
+.stats-value a.ticker,
+.rapid-growth-item a {
+    color: var(--text-color) !important;
+    text-decoration: none !important;
+    font-weight: bold;
+}
+
+/* Убираем подчеркивание при наведении */
+.ticker a:hover, 
+.pnl-table td a:hover,
+.stats-value a.ticker:hover,
+.rapid-growth-item a:hover {
+    text-decoration: none !important;
+}
+
 .pagination {
     display: flex;
     justify-content: center;
@@ -274,20 +255,985 @@ body {
 }
 
 .pagination-btn {
-    padding: 8px 20px;
-    background: var(--section-bg);
+    padding: 5px 15px;
+    border-radius: 5px;
     border: 1px solid var(--border-color);
-    border-radius: var(--border-radius-sm);
+    background-color: var(--section-bg);
     color: var(--text-color);
     cursor: pointer;
-    transition: all var(--transition-normal) ease;
-}
-
-.pagination-btn:hover {
-    background: rgba(255, 255, 255, 0.05);
 }
 
 .pagination-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-} 
+}
+
+#pageInfo {
+    color: var(--text-color);
+}
+
+.high-pnl {
+    color: #FF8C00 !important;  /* Оранжевый цвет */
+    font-weight: bold;
+}
+
+/* Добавляем стили для разной ширины колонки */
+.full-width {
+    width: 100%;
+}
+
+.half-width {
+    width: calc(50% - 10px);
+}
+
+.third-width {
+    width: calc(33.33% - 14px);
+}
+
+.row-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+.sort-select {
+    padding: 3px 8px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--section-bg);
+    color: var(--text-color);
+    font-size: 0.9em;
+    cursor: pointer;
+}
+
+.sort-container {
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sort-label {
+    font-size: 0.9em;
+    color: var(--text-color);
+    margin-right: 10px;
+}
+
+.max-value {
+    color: #888;  /* Серый цвет для светлой темы */
+}
+
+[data-theme="light"] .max-value {
+    color: #aaa;  /* Более светлый серый для темной темы */
+}
+
+.blue {
+    color: var(--blue-color);
+}
+
+.rapid-growth {
+    background-color: var(--section-bg);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    font-size: 0.67em; /* Уменьшаем шрифт в 1.5 раза */
+}
+
+.rapid-growth-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: left;
+    color: #FF8C00;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.rapid-growth-item {
+    display: inline-block;
+    margin-right: 20px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: rgba(255, 140, 0, 0.1);
+    border: 1px solid #FF8C00;
+}
+
+.rapid-growth-item .growth-ratio {
+    color: #FF8C00;
+    font-weight: bold;
+}
+
+/* Добавляем си для фильра и кнопки */
+.pnl-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.pnl-filter input {
+    width: 80px;
+    padding: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.update-btn {
+    padding: 5px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.update-btn:hover {
+    background-color: #45a049;
+}
+
+.update-btn:active {
+    background-color: #3d8b40;
+}
+
+#high-profitable-header,
+#profitable-header,
+#losing-header {
+    font-size: 1.0em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-input {
+    width: 60px;
+    padding: 2px 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: inherit;
+    font-weight: inherit;
+    display: inline-block;
+    margin: 0 5px;
+}
+
+.header-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+/* Стили для заголовков блоков */
+#high-profitable-positions-header,
+#profitable-positions-header,
+#losing-positions-header {
+
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: var(--section-bg);
+}
+
+/* Стили для поля ввода в заголовке */
+.header-input {
+    width: 60px;
+    height: 30px;
+    padding: 2px 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 0.9em;
+    font-weight: bold;
+    display: inline-block;
+    margin: 0 5px;
+    text-align: center;
+}
+
+.header-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 3px rgba(74, 175, 80, 0.5);
+}
+
+/* Стили для разных типов заголовков */
+#high-profitable-positions-header {
+    color: var(--green-color);
+    /* border-left: 4px solid var(--green-color); */
+}
+
+#profitable-positions-header {
+    color: var(--green-color);
+    /* border-left: 4px solid var(--green-color); */
+}
+
+#losing-positions-header {
+    color: var(--red-color);
+    /* border-left: 4px solid var(--red-color); */
+}
+
+.header-prefix,
+.header-suffix,
+.position-count {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.position-count {
+    margin-left: 5px;
+}
+
+.position-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    min-height: 24px;  /* Добавляем минималную высоту */
+}
+
+.mini-chart {
+    width: 60px;
+    height: 24px;
+    object-fit: contain;
+    margin-left: 10px;
+    background-color: var(--section-bg);
+    border-radius: 2px;
+}
+
+.ticker {
+    flex: 1;  /* Добавляем flex-grow */
+}
+
+.position-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.sma200 {
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.ticker {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sma-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-left: 5px;
+    cursor: help;  /* Показываем, что есть подсказка */
+}
+
+/* Стили для нативного тултипа */
+.sma-indicator:hover::after {
+    content: attr(title);
+    position: absolute;
+    background: var(--section-bg);
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    border: 1px solid var(--border-color);
+}
+
+.sma-loading {
+    background-color: #888;
+    animation: pulse 1.5s infinite;
+}
+
+.sma-above {
+    background-color: #4CAF50;
+}
+
+.sma-below {
+    background-color: #f44336;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+}
+
+/* Добавляем стиль для срок TOP-3 */
+.top-row {
+    display: table;
+    width: 100%;
+    margin: 5px 0;
+}
+
+.coin-name {
+    display: table-cell;
+    color: var(--text-color);
+    font-weight: bold;
+}
+
+.pnl-value {
+    display: table-cell;
+    text-align: right;
+}
+
+.pnl-value.positive {
+    color: #4CAF50;
+}
+
+.pnl-value.negative {
+    color: #f44336;
+}
+
+/* Обновляем стили для TOP-3 с повышенной специфичностью */
+#top-profitable .stats-value,
+#top-losing .stats-value {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin: 5px 0 !important;
+    font-size: 1em !important;
+}
+
+#top-profitable .ticker,
+#top-losing .ticker {
+    display: inline !important;
+    margin: 0 !important;
+}
+
+#top-profitable .value,
+#top-losing .value {
+    display: inline !important;
+    margin: 0 !important;
+}
+
+/* Добавляем стили для статистики */
+.stats-row {
+    display: table;
+    width: 100%;
+    margin: 5px 0;
+}
+
+.stats-label {
+    display: table-cell;
+    color: var(--text-color);
+}
+
+.stats-value {
+    display: table-cell !important;
+    font-size: 1em !important;
+    margin: 0 !important;
+}
+
+/* Добавляем новые стили для ROI */
+.position-footer span {
+    color: inherit;  /* Цв��т будет определяться только через JavaScript */
+}
+
+.high-roi {
+    font-weight: bold;
+}
+
+/* Добавляем специальные стили для ROI */
+.roi-positive {
+    color: #4CAF50 !important;
+}
+
+.roi-negative {
+    color: #f44336 !important;
+}
+
+.reduce-load {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    background-color: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.reduce-load input {
+    cursor: pointer;
+}
+
+.controls-panel {
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.control-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    padding: 5px 10px;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.control-item:hover {
+    background: var(--border-color);
+}
+
+.theme-switch {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 0;
+}
+
+.reduce-load input {
+    cursor: pointer;
+    margin-right: 5px;
+}
+
+/* Добавить в существующие стили */
+.error-notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: var(--red-color);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 5px;
+    z-index: 1000;
+    animation: fadeInOut 3s ease-in-out;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Добавлм в существующие стили */
+.clear-button {
+    float: right;
+    padding: 5px 15px;
+    background-color: var(--section-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+}
+
+.clear-button:hover {
+    background-color: var(--border-color);
+}
+
+.rapid-growth-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: left;
+}
+
+/* Обновляем стиль для кнопки очистки */
+.clear-button {
+    margin-left: 15px;  /* Добавляем отступ слева от кнопки */
+    padding: 5px 15px;
+    background-color: var(--section-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    flex-shrink: 0;  /* Предотвращаем сжатие кнопки */
+}
+
+.clear-button:hover {
+    background-color: var(--border-color);
+}
+
+/* Добавляем стили для индикатора стороны позиции */
+.position-side {
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.position-side.long {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #4CAF50;
+}
+
+.position-side.short {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+/* Обновляем footer позиции для правильного расположения элементов */
+.position-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.search-container {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    margin-left: 20px;
+}
+
+.search-input {
+    padding: 8px 30px 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    background-color: var(--section-bg);
+    color: var(--text-color);
+    width: 200px;
+    font-size: 14px;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+.clear-search {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.6;
+    display: none;
+}
+
+.clear-search:hover {
+    opacity: 1;
+}
+
+/* Показываем кнопку очистк только когда есть текст */
+.search-input:not(:placeholder-shown) + .clear-search {
+    display: block;
+}
+
+/* Обновляем стиль для last-update */
+.last-update {
+    padding: 10px 0;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+/* Обновляем стили для заголовков TOP-3 */
+.stats-container h3 {
+    font-size: 0.97em;  /* Было 0.88em, увеличиваем еще на 10% */
+    font-weight: bold;  /* Оставляем жирность */
+}
+
+/* Оставляем прежний размер для содержимого TOP-3 */
+#top-profitable .stats-value, 
+#top-losing .stats-value,
+#top-profitable .ticker,
+#top-losing .ticker,
+#top-profitable .coin-name,
+#top-losing .coin-name,
+#top-profitable .pnl-value,
+#top-losing .pnl-value {
+    font-size: 0.8em;  /* Оставляем как есть */
+}
+
+/* Оставляем прежний размер для ссылок тикеров в TOP-3 */
+.stats-value a.ticker {
+    font-size: 0.8em;  /* Оставляем как есть */
+}
+
+.exchange-select {
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: var(--section-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.exchange-select option:disabled {
+    color: #666;
+    font-style: italic;
+}
+
+.exchange-select:focus {
+    outline: none;
+    border-color: #4CAF50;
+}
+
+.confirm-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.confirm-content {
+    background: var(--section-bg);
+    padding: 20px;
+    border-radius: 8px;
+    min-width: 300px;
+    text-align: center;
+}
+
+.confirm-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.confirm-btn {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.confirm-yes {
+    background: #4CAF50;
+    color: white;
+}
+
+.confirm-no {
+    background: #f44336;
+    color: white;
+}
+
+.notification {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 12px 24px;
+    border-radius: 4px;
+    color: white;
+    font-weight: 500;
+    z-index: 1100;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    animation: slideDown 0.3s ease-out;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification .icon {
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+}
+
+.notification.success {
+    background-color: #4CAF50;
+}
+
+.notification.error {
+    background-color: #f44336;
+}
+
+.notification.warning {
+    background-color: #ff9800;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+.position-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.close-position-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    opacity: 0.7;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.close-position-btn:hover {
+    opacity: 1;
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.close-positions-btn {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    opacity: 0.7;
+    transition: all 0.2s;
+    font-size: 16px;
+}
+
+.close-positions-btn:hover {
+    opacity: 1;
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.position.closing {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+}
+
+.position.closing::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    animation: pulse 1s infinite;
+}
+
+.position.closed {
+    animation: fadeOut 0.5s forwards;
+    pointer-events: none;
+}
+
+.position.close-error {
+    border-color: #f44336;
+    animation: shake 0.5s;
+}
+
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+    100% { opacity: 0.5; }
+}
+
+@keyframes fadeOut {
+    to { 
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* Добавлм стили для бургер-меню */
+.burger-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 20px;
+}
+
+.burger-button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    font-size: 21px;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.burger-button:hover {
+    opacity: 0.8;
+}
+
+.menu-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    display: none;
+    z-index: 1000;
+    min-width: 200px;
+}
+
+.menu-dropdown.active {
+    display: block;
+}
+
+.menu-item {
+    padding: 10px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.menu-item:hover {
+    background: var(--border-color);
+}
+
+.menu-item.active {
+    background: var(--blue-color);
+    color: white;
+}
+
+.current-page {
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+/* Добавляем новые стили из инлайновых */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 20px;
+}
+
+.header-title {
+    margin: 0;
+}
+
+.header-update {
+    font-size: 0.9em;
+}
+
+.controls-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 20px;
+}
+
+hr.stats-divider {
+    margin: 15px 0;
+    border: 1px solid #eee;
+}
+
+.stats-flex-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.stats-section {
+    margin: 15px 0;
+}
+
+.closed-pnl-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.page-size-container {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.tab-content.hidden {
+    display: none;
+}
+
+/* Исправляем стили для меню */
+.menu-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.menu-section {
+    display: flex;
+    align-items: center;
+}
+
+.controls-panel {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
