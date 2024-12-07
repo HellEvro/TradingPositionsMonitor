@@ -66,34 +66,24 @@ class App {
     initializeLastActivePage() {
         console.log('[MENU] initializeLastActivePage started');
         try {
-            const lastActivePage = localStorage.getItem('lastActivePage');
-            const lastActivePageText = localStorage.getItem('lastActivePageText');
-            
-            console.log('[MENU] Retrieved from localStorage:', {
-                lastActivePage,
-                lastActivePageText
-            });
-            
-            // Восстанавливаем текст в кнопке меню
+            const lastActivePage = localStorage.getItem('lastActivePage') || 'positions';
             const menuTitle = document.querySelector('.menu-title');
             console.log('[MENU] Menu title element:', menuTitle);
             
             if (menuTitle && !this.menuInitialized) {
-                const textToSet = lastActivePageText || languageUtils.translate('positions');
-                console.log('[MENU] Setting menu title to:', textToSet);
+                // Устанавливаем атрибут data-translate для правильного перевода
+                menuTitle.setAttribute('data-translate', lastActivePage);
                 
-                // Принудительно обновляем текст
-                requestAnimationFrame(() => {
-                    menuTitle.textContent = textToSet;
-                    this.menuInitialized = true;
-                });
-            } else {
-                console.warn('[MENU] Menu title element not found or already initialized');
+                // Получаем перевод для текущего языка
+                const translatedText = languageUtils.translate(lastActivePage);
+                console.log('[MENU] Setting menu title to:', translatedText);
+                
+                menuTitle.textContent = translatedText;
+                this.menuInitialized = true;
             }
             
-            const pageToShow = lastActivePage || 'positions';
-            console.log('[MENU] Showing tab:', pageToShow);
-            this.showTab(pageToShow, false);
+            // Показываем нужную вкладку
+            this.showTab(lastActivePage, false);
             
         } catch (e) {
             console.error('[MENU] Error in initializeLastActivePage:', e);
@@ -546,7 +536,7 @@ class App {
     }
 }
 
-// В начале файла добавим функции для работы с localStorage
+// В начале файла добавим функции ��ля работы с localStorage
 function saveFilterState(containerId, value) {
     localStorage.setItem(`sort_${containerId}`, value);
 }

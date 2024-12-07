@@ -629,7 +629,8 @@ def close_position():
         result = exchange.close_position(
             symbol=data['symbol'],
             size=float(data['size']),
-            side=data['side']
+            side=data['side'],
+            order_type=data.get('order_type', 'Limit')  # По умолчанию используем Limit для обратной совместимости
         )
         
         print(f"[API] Close position result: {result}")
