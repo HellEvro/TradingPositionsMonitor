@@ -1,0 +1,152 @@
+<!-- Страница позиций -->
+<div class="positions-container">
+    <div id="rapid-growth-container" class="rapid-growth">
+        <div class="rapid-growth-title">
+            <span data-translate="rapidGrowth">Быстрорастущие позиции</span>
+            <button id="clear-rapid-growth" class="clear-button" data-translate="clear">Очистить</button>
+        </div>
+        <div id="rapid-growth-positions"></div>
+    </div>
+    
+    <div class="row-container" id="positions-row">
+        <div class="section third-width">
+            <div id="high-profitable-positions-header">
+                <div class="header-content">
+                    <div class="title-container">
+                        <span class="header-prefix">PnL > </span>
+                        <input type="number" id="pnl-filter-input" value="100" min="5" step="5" class="header-input">
+                        <span class="header-suffix">USDT</span>
+                        <span class="position-count">(0)</span>
+                    </div>
+                    <button class="close-positions-btn mass-close" data-column="high-profitable">✕</button>
+                </div>
+            </div>
+            <div class="sort-container">
+                <span class="sort-label">Сортировка:</span>
+                <select class="sort-select" id="sort-high-profitable-positions">
+                    <option value="pnl_desc">PNL (макс-мин)</option>
+                    <option value="pnl_asc">PNL (мин-макс)</option>
+                    <option value="roi_desc">ROI (макс-мин)</option>
+                    <option value="roi_asc">ROI (мин-макс)</option>
+                    <option value="alphabet_asc">A-Z</option>
+                    <option value="alphabet_desc">Z-A</option>
+                </select>
+            </div>
+            <div id="high-profitable-positions"></div>
+        </div>
+        
+        <div class="section third-width">
+            <div id="profitable-positions-header">
+                <div class="header-content">
+                    <div class="title-container">PnL < 100 USDT <span class="position-count">(0)</span></div>
+                    <button class="close-positions-btn mass-close" data-column="profitable">✕</button>
+                </div>
+            </div>
+            <div class="sort-container">
+                <span class="sort-label">Сортировка:</span>
+                <select class="sort-select" id="sort-profitable-positions">
+                    <option value="pnl_desc">PNL (макс-мин)</option>
+                    <option value="pnl_asc">PNL (мин-макс)</option>
+                    <option value="roi_desc">ROI (макс-мин)</option>
+                    <option value="roi_asc">ROI (мин-макс)</option>
+                    <option value="alphabet_asc">A-Z</option>
+                    <option value="alphabet_desc">Z-A</option>
+                </select>
+            </div>
+            <div id="profitable-positions"></div>
+        </div>
+        
+        <div class="section third-width">
+            <div id="losing-positions-header">
+                <div class="header-content">
+                    <div class="title-container">Losing Positions <span class="position-count">(0)</span></div>
+                    <button class="close-positions-btn mass-close" data-column="losing">✕</button>
+                </div>
+            </div>
+            <div class="sort-container">
+                <span class="sort-label">Сортировка:</span>
+                <select class="sort-select" id="sort-losing-positions">
+                    <option value="pnl_desc">PNL (макс-мин)</option>
+                    <option value="pnl_asc">PNL (мин-макс)</option>
+                    <option value="roi_desc">ROI (макс-мин)</option>
+                    <option value="roi_asc">ROI (мин-макс)</option>
+                    <option value="alphabet_asc">A-Z</option>
+                    <option value="alphabet_desc">Z-A</option>
+                </select>
+            </div>
+            <div id="losing-positions"></div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-container">
+    <div class="section">
+        <h2 data-translate="statistics">Статистика</h2>
+        <div class="chart-container">
+            <canvas id="pnlChart"></canvas>
+        </div>
+        <div>
+            <div data-translate="total-pnl-label">Общая прибыль + убыток:</div>
+            <div id="total-pnl" class="stats-value"></div>
+        </div>
+        <div style="margin: 15px 0;">
+            <div data-translate="total-profit-label">Прибыль по позициям:</div>
+            <div id="total-profit" class="stats-value positive"></div>
+        </div>
+        <div style="margin: 15px 0;">
+            <div data-translate="total-loss-label">Убыток по позициям:</div>
+            <div id="total-loss" class="stats-value negative"></div>
+        </div>
+        <hr>
+        <div>
+            <div class="stats-flex-row">
+                <span data-translate="total-trades-label">Всего сделок:</span>
+                <div id="total-trades" class="stats-value blue"></div>
+            </div>
+            <div class="stats-flex-row">
+                <span data-translate="profitable-trades-label">- прибыльных сделок:</span>
+                <div id="total-all-profitable" class="stats-value positive"></div>
+            </div>
+            <div class="stats-flex-row">
+                <span data-translate="losing-trades-label">- убыточных сделок:</span>
+                <div id="total-losing" class="stats-value negative"></div>
+            </div>
+        </div>
+        <hr class="stats-divider">
+        <div>
+            <h3 data-translate="topProfitable">TOP-3 Прибыльных:</h3>
+            <div id="top-profitable">
+                <div class="top-row">
+                    <div class="coin-name"></div>
+                    <div class="pnl-value positive"></div>
+                </div>
+                <div class="top-row">
+                    <div class="coin-name"></div>
+                    <div class="pnl-value positive"></div>
+                </div>
+                <div class="top-row">
+                    <div class="coin-name"></div>
+                    <div class="pnl-value positive"></div>
+                </div>
+            </div>
+        </div>
+        <hr class="stats-divider">
+        <div>
+            <h3 data-translate="topLosing">TOP-3 Убыточных:</h3>
+            <div id="top-losing">
+                <div class="top-row">
+                    <div class="coin-name"></div>
+                    <div class="pnl-value negative"></div>
+                </div>
+                <div class="top-row">
+                    <div class="coin-name"></div>
+                    <div class="pnl-value negative"></div>
+                </div>
+                <div class="top-row">
+                    <div class="coin-name"></div>
+                    <div class="pnl-value negative"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

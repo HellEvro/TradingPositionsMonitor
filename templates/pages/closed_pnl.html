@@ -1,0 +1,40 @@
+<!-- Страница закрытых позиций -->
+<div class="section">
+    <div class="closed-pnl-header">
+        <div class="page-size-container">
+            <h2 data-translate="closedPositions">Закрытые позиции</h2>
+            <div>
+                <label for="pageSize" data-translate="showPerPage">Показывать по</label>:
+                <select id="pageSize" onchange="window.app.changePageSize(this.value)" class="sort-select">
+                    <option value="10">10</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+        </div>
+        <select id="sortSelect" onchange="window.app.updateClosedPnl()" class="sort-select">
+            <option value="time" data-translate="sortNew">От нового к старому</option>
+            <option value="pnl" data-translate="sortPnl">По размеру PNL</option>
+        </select>
+    </div>
+    <table class="pnl-table">
+        <thead>
+            <tr>
+                <th data-translate="contracts">Контракты</th>
+                <th data-translate="quantity">Кол-во</th>
+                <th data-translate="entryPrice">Цена входа</th>
+                <th data-translate="exitPrice">Цена выхода</th>
+                <th data-translate="realizedPnl">Реальз. P&L</th>
+                <th data-translate="tradingTime">Время торговли</th>
+            </tr>
+        </thead>
+        <tbody id="closedPnlTable">
+            <!-- Данные будут добавлены через JavaScript -->
+        </tbody>
+    </table>
+    <div class="pagination">
+        <button class="pagination-btn" onclick="window.app.prevPage()" data-translate="prevPage">< Назад</button>
+        <span id="pageInfo"></span>
+        <button class="pagination-btn" onclick="window.app.nextPage()" data-translate="nextPage">Вперед ></button>
+    </div>
+</div>

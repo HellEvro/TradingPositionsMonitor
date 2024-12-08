@@ -176,7 +176,6 @@ class OkxExchange(BaseExchange):
                             positions[key].append(trade)
                             processed_trades.add(trade_id)
                         except (ValueError, KeyError) as e:
-                            print(f"[OKX] Error processing trade: {e}, trade data: {trade}")
                             continue
                     
                     # Обрабатываем каждую позицию
@@ -201,10 +200,7 @@ class OkxExchange(BaseExchange):
                                     ).strftime('%Y-%m-%d %H:%M:%S')
                                 }
                                 all_closed_pnl.append(pnl_record)
-                                print(f"[OKX] Added PNL record: {pnl_record}")
-                    
                         except Exception as e:
-                            print(f"[OKX] Error processing position {key}: {e}")
                             continue
                     
                     time.sleep(0.5)  # Задержка между запросами страниц
@@ -220,7 +216,6 @@ class OkxExchange(BaseExchange):
                 
             except Exception as e:
                 print(f"[OKX] Error fetching closed positions: {str(e)}")
-                print(f"[OKX] Error details: {traceback.format_exc()}")
                 return []
                 
         except Exception as e:

@@ -175,41 +175,37 @@ class BybitExchange(BaseExchange):
                         response = self.client.get_closed_pnl(**params)
                         
                         if not response or response.get('retCode') != 0:
-                            print(f"[BYBIT] Error response for period {i+1}: {response}")
                             break
                         
                         positions = response['result'].get('list', [])
                         if not positions:
                             break
-                        
-                        for position in positions:
-                            if float(position.get('closedPnl', 0)) != 0:
-                                pnl_record = {
-                                    'symbol': clean_symbol(position['symbol']),
-                                    'qty': abs(float(position.get('size', 0))),
-                                    'entry_price': float(position.get('entryPrice', 0)),
-                                    'exit_price': float(position.get('exitPrice', 0)),
-                                    'closed_pnl': float(position.get('closedPnl', 0)),
-                                    'close_time': datetime.fromtimestamp(
-                                        int(position.get('updatedTime', time.time()*1000))/1000
-                                    ).strftime('%Y-%m-%d %H:%M:%S')
-                                }
-                                all_closed_pnl.append(pnl_record)
-                        
+                            
+                        for pos in positions:
+                            pnl_record = {
+                                'symbol': clean_symbol(pos['symbol']),
+                                'qty': float(pos.get('qty', 0)),
+                                'entry_price': float(pos.get('avgEntryPrice', 0)),
+                                'exit_price': float(pos.get('avgExitPrice', 0)),
+                                'closed_pnl': float(pos.get('closedPnl', 0)),
+                                'close_time': datetime.fromtimestamp(
+                                    int(pos.get('updatedTime', 0))/1000
+                                ).strftime('%Y-%m-%d %H:%M:%S')
+                            }
+                            all_closed_pnl.append(pnl_record)
+                            
                         cursor = response['result'].get('nextPageCursor')
                         if not cursor:
                             break
-                        
-                        time.sleep(0.1)  # Небольшая задержка между запросами
-                        
+                            
                 except Exception as e:
-                    print(f"[BYBIT] Error fetching data for period {i+1}: {str(e)}")
+                    print(f"[BYBIT] Error processing period {i+1}: {str(e)}")
                     continue
             
-            # Сортировка всех полученных данных
+            # Сортировка
             if sort_by == 'pnl':
-                all_closed_pnl.sort(key=lambda x: abs(x['closed_pnl']), reverse=True)
-            else:
+                all_closed_pnl.sort(key=lambda x: abs(float(x['closed_pnl'])), reverse=True)
+            else:  # По умолчанию сортируем по времени
                 all_closed_pnl.sort(key=lambda x: x['close_time'], reverse=True)
             
             print(f"[BYBIT] Found total {len(all_closed_pnl)} closed positions")
@@ -304,7 +300,7 @@ class BybitExchange(BaseExchange):
 
     def close_position(self, symbol, size, side, order_type="Limit"):
         try:
-            print(f"[BYBIT] Закрытие позиции {symbol}, объём: {size}, сторона: {side}, тип: {order_type}")
+            print(f"[BYBIT] Закрытие позиции {symbol}, объём: {size}, сторона: {side}, т��п: {order_type}")
             
             # Проверяем существование активной позиции
             try:

@@ -686,8 +686,8 @@ body {
     display: flex;
     align-items: center;
     gap: 5px;
-    background: var(--section-bg);
-    border: 1px solid var(--border-color);
+    /* background: var(--section-bg);
+    border: 1px solid var(--border-color); */
     border-radius: 5px;
     padding: 5px 10px;
     color: var(--text-color);
