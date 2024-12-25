@@ -138,7 +138,6 @@ class OkxExchange(BaseExchange):
     def get_closed_pnl(self, sort_by='time'):
         """Получает историю закрытых позиций с PNL"""
         try:
-            print("[OKX] Starting get_closed_pnl")
             all_closed_pnl = []
             
             # Получаем историю за последние 7 дней
@@ -153,19 +152,15 @@ class OkxExchange(BaseExchange):
                     'limit': '50'  # Увеличиваем лимит
                 }
                 
-                print(f"[OKX] Fetching closed positions with params: {params}")
                 closed_positions = self.client.private_get_account_positions(params)
-                print(f"[OKX] Raw response: {closed_positions}")
                 
                 if closed_positions and closed_positions.get('code') == '0' and closed_positions.get('data'):
                     positions = closed_positions['data']
-                    print(f"[OKX] Got {len(positions)} positions")
                     
                     for position in positions:
                         try:
                             # Проверяем наличие всех необходимых данных
                             if not all(k in position for k in ['instId', 'pos', 'avgPx', 'markPx', 'realizedPnl', 'upl', 'uTime']):
-                                print(f"[OKX] Skipping position due to missing fields: {position}")
                                 continue
                             
                             # Рассчитываем общий PNL (реализованный + нереализованный)
@@ -175,19 +170,16 @@ class OkxExchange(BaseExchange):
                             
                             # Пропускаем позиции с нулевым PNL
                             if total_pnl == 0:
-                                print(f"[OKX] Skipping position with zero PNL: {position}")
                                 continue
                             
                             symbol = clean_symbol(position['instId'])
                             position_size = abs(float(position.get('pos', 0)))
                             
                             # Получаем историю сделок для этой позиции
-                            print(f"[OKX] Fetching trades for {symbol}")
                             trades = self.client.fetch_my_trades(
                                 symbol=position['instId'],
                                 limit=100
                             )
-                            print(f"[OKX] Got trades response: {trades}")
                             
                             trades_by_position = {}
                             
@@ -197,8 +189,6 @@ class OkxExchange(BaseExchange):
                                 if pos_side not in trades_by_position:
                                     trades_by_position[pos_side] = []
                                 trades_by_position[pos_side].append(trade)
-                            
-                            print(f"[OKX] Processing {len(trades)} trades")
                             
                             # Обрабатываем каждую группу сделок
                             for pos_side, position_trades in trades_by_position.items():
@@ -227,14 +217,8 @@ class OkxExchange(BaseExchange):
                                                 ).strftime('%Y-%m-%d %H:%M:%S'),
                                                 'exchange': 'okx'
                                             }
-                                            print(f"[OKX] Created PNL record: {pnl_record}")
                                             all_closed_pnl.append(pnl_record)
-                            
-                        except Exception as e:
-                            print(f"[OKX] Error processing position: {str(e)}")
-                            print(f"[OKX] Position data: {position}")
-                            import traceback
-                            print(f"[OKX] Traceback: {traceback.format_exc()}")
+                        except Exception:
                             continue
                     
                     # Сортировка результатов
@@ -243,22 +227,14 @@ class OkxExchange(BaseExchange):
                     else:  # sort by time
                         all_closed_pnl.sort(key=lambda x: x['close_time'], reverse=True)
                     
-                    print(f"[OKX] Returning {len(all_closed_pnl)} PNL records")
                     return all_closed_pnl
                 else:
-                    print(f"[OKX] No positions data received or error in response: {closed_positions}")
                     return []
                 
-            except Exception as e:
-                print(f"[OKX] Error fetching closed positions: {str(e)}")
-                import traceback
-                print(f"[OKX] Traceback: {traceback.format_exc()}")
+            except Exception:
                 return []
                 
-        except Exception as e:
-            print(f"[OKX] Error in get_closed_pnl: {str(e)}")
-            import traceback
-            print(f"[OKX] Traceback: {traceback.format_exc()}")
+        except Exception:
             return []
 
     def get_symbol_chart_data(self, symbol):

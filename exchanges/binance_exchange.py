@@ -83,8 +83,8 @@ class BinanceExchange(BaseExchange):
             return [], []
 
     def get_closed_pnl(self, sort_by='time'):
+        """Получает историю закрытых позиций с PNL"""
         try:
-            print("[BINANCE] Starting get_closed_pnl")
             all_closed_pnl = []
             
             end_time = int(time.time() * 1000)
@@ -95,18 +95,12 @@ class BinanceExchange(BaseExchange):
                 current_end = min(current_start + (7 * 24 * 60 * 60 * 1000), end_time)
                 
                 try:
-                    print(f"[BINANCE] Fetching trades for period {datetime.fromtimestamp(current_start/1000)} - {datetime.fromtimestamp(current_end/1000)}")
                     trades = self.client.futures_account_trades(
                         startTime=current_start,
                         endTime=current_end,
                         limit=1000
                     )
-                    print(f"[BINANCE] Got {len(trades)} trades")
                     
-                    # Выводим детали всех сделок для анализа
-                    for i, trade in enumerate(trades):
-                        print(f"[BINANCE] Trade {i+1} details: {trade}")
-                        
                     trades_by_position = {}
                     
                     # Группируем сделки по символу и positionSide
@@ -153,15 +147,9 @@ class BinanceExchange(BaseExchange):
                                     ).strftime('%Y-%m-%d %H:%M:%S'),
                                     'exchange': 'binance'
                                 }
-                                print(f"[BINANCE] Created PNL record: {pnl_record}")
                                 all_closed_pnl.append(pnl_record)
                     
-                    print(f"[BINANCE] Processed {len(trades)} trades")
-                    
-                except Exception as e:
-                    print(f"[BINANCE] Error processing period: {str(e)}")
-                    import traceback
-                    print(f"[BINANCE] Traceback: {traceback.format_exc()}")
+                except Exception:
                     break
                 
                 current_start = current_end
@@ -171,13 +159,9 @@ class BinanceExchange(BaseExchange):
             else:  # sort by time
                 all_closed_pnl.sort(key=lambda x: x['close_time'], reverse=True)
             
-            print(f"[BINANCE] Returning {len(all_closed_pnl)} PNL records")
             return all_closed_pnl
             
-        except Exception as e:
-            print(f"[BINANCE] Error in get_closed_pnl: {str(e)}")
-            import traceback
-            print(f"[BINANCE] Traceback: {traceback.format_exc()}")
+        except Exception:
             return []
 
     def get_symbol_chart_data(self, symbol):
@@ -884,7 +868,7 @@ class BinanceExchange(BaseExchange):
     def _generate_recommendation(self, rsi, trend_direction, current_price, support_resistance, volume_trend):
         """Генерация торговой рекомендации"""
         if rsi >= 70 and trend_direction == "Восходящий" and volume_trend == "Падающий":
-            return "Возможна коррекция - рекомендуется фиксация п��ибыли"
+            return "Возможна коррекция - рекомендуется фиксация прибыли"
         elif rsi <= 30 and trend_direction == "Нисходящий" and volume_trend == "Растущий":
             return "Возможен отскок - рекомендуется поиск точки входа"
         elif trend_direction == "Восходящий" and current_price < support_resistance['resistance']:

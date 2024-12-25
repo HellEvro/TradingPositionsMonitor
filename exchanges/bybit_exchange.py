@@ -148,14 +148,14 @@ class BybitExchange(BaseExchange):
             return [], []
 
     def get_closed_pnl(self, sort_by='time'):
+        """Получает историю закрытых позиций с PNL"""
         try:
-            print("[BYBIT] Getting closed PnL...")
             all_closed_pnl = []
             
             # Получаем текущее время
             end_time = int(time.time() * 1000)
             
-            # Разбиваем запрос на ериоды по 7 дней
+            # Разбиваем запрос на периоды по 7 дней
             for i in range(4):  # Получаем данные за 28 дней (4 недели)
                 period_end = end_time - (i * 7 * 24 * 60 * 60 * 1000)
                 period_start = period_end - (7 * 24 * 60 * 60 * 1000)
@@ -173,8 +173,6 @@ class BybitExchange(BaseExchange):
                         if cursor:
                             params["cursor"] = cursor
                         
-                        print(f"[BYBIT] Fetching data for period {i+1}/4: {datetime.fromtimestamp(period_start/1000).strftime('%Y-%m-%d')} - {datetime.fromtimestamp(period_end/1000).strftime('%Y-%m-%d')}")
-                        
                         response = self.client.get_closed_pnl(**params)
                         
                         if not response or response.get('retCode') != 0:
@@ -183,7 +181,7 @@ class BybitExchange(BaseExchange):
                         positions = response['result'].get('list', [])
                         if not positions:
                             break
-                            
+                        
                         for pos in positions:
                             pnl_record = {
                                 'symbol': clean_symbol(pos['symbol']),
@@ -197,13 +195,12 @@ class BybitExchange(BaseExchange):
                                 'exchange': 'bybit'
                             }
                             all_closed_pnl.append(pnl_record)
-                            
+                        
                         cursor = response['result'].get('nextPageCursor')
                         if not cursor:
                             break
                             
-                except Exception as e:
-                    print(f"[BYBIT] Error processing period {i+1}: {str(e)}")
+                except Exception:
                     continue
             
             # Сортировка
@@ -212,11 +209,9 @@ class BybitExchange(BaseExchange):
             else:  # По умолчанию сортируем по времени
                 all_closed_pnl.sort(key=lambda x: x['close_time'], reverse=True)
             
-            print(f"[BYBIT] Found total {len(all_closed_pnl)} closed positions")
             return all_closed_pnl
             
-        except Exception as e:
-            print(f"[BYBIT] Error in get_closed_pnl: {str(e)}")
+        except Exception:
             return []
 
     def get_symbol_chart_data(self, symbol):
