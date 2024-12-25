@@ -84,6 +84,7 @@ class BinanceExchange(BaseExchange):
 
     def get_closed_pnl(self, sort_by='time'):
         try:
+            print("[BINANCE] Starting get_closed_pnl")
             all_closed_pnl = []
             
             end_time = int(time.time() * 1000)
@@ -94,51 +95,73 @@ class BinanceExchange(BaseExchange):
                 current_end = min(current_start + (7 * 24 * 60 * 60 * 1000), end_time)
                 
                 try:
+                    print(f"[BINANCE] Fetching trades for period {datetime.fromtimestamp(current_start/1000)} - {datetime.fromtimestamp(current_end/1000)}")
                     trades = self.client.futures_account_trades(
                         startTime=current_start,
                         endTime=current_end,
                         limit=1000
                     )
+                    print(f"[BINANCE] Got {len(trades)} trades")
                     
-                    trades_by_order = {}
+                    # Выводим детали всех сделок для анализа
+                    for i, trade in enumerate(trades):
+                        print(f"[BINANCE] Trade {i+1} details: {trade}")
+                        
+                    trades_by_position = {}
+                    
+                    # Группируем сделки по символу и positionSide
                     for trade in trades:
-                        if float(trade['realizedPnl']) != 0:
-                            order_id = trade['orderId']
-                            symbol = clean_symbol(trade['symbol'])
-                            
-                            if order_id not in trades_by_order:
-                                trades_by_order[order_id] = {
-                                    'symbol': symbol,
-                                    'qty': 0,
-                                    'realized_pnl': float(trade['realizedPnl']),
-                                    'entry_price': float(trade['price']),
-                                    'exit_price': float(trade['price']),
-                                    'time': int(trade['time'])
-                                }
-                            
-                            trade_qty = abs(float(trade['qty']))
-                            trades_by_order[order_id]['qty'] += trade_qty
-                            
-                            if float(trade['realizedPnl']) > 0:
-                                trades_by_order[order_id]['exit_price'] = float(trade['price'])
-                            else:
-                                trades_by_order[order_id]['entry_price'] = float(trade['price'])
+                        symbol = clean_symbol(trade['symbol'])
+                        position_side = trade['positionSide']
+                        key = f"{symbol}_{position_side}"
+                        
+                        if key not in trades_by_position:
+                            trades_by_position[key] = []
+                        trades_by_position[key].append(trade)
                     
-                    for order_id, trade_data in trades_by_order.items():
-                        pnl_record = {
-                            'symbol': trade_data['symbol'],
-                            'qty': trade_data['qty'],
-                            'entry_price': trade_data['entry_price'],
-                            'exit_price': trade_data['exit_price'],
-                            'closed_pnl': trade_data['realized_pnl'],
-                            'close_time': datetime.fromtimestamp(
-                                trade_data['time']/1000
-                            ).strftime('%Y-%m-%d %H:%M:%S'),
-                            'exchange': 'binance'
-                        }
-                        all_closed_pnl.append(pnl_record)
+                    # Обрабатываем каждую позицию
+                    for key, position_trades in trades_by_position.items():
+                        # Сортируем сделки по времени
+                        position_trades.sort(key=lambda x: int(x['time']))
+                        
+                        # Находим сделки с PnL
+                        pnl_trades = [t for t in position_trades if float(t['realizedPnl']) != 0]
+                        
+                        for pnl_trade in pnl_trades:
+                            # Находим соответствующую сделку открытия
+                            # Это последняя сделка перед текущей с противоположной стороной
+                            entry_trade = None
+                            pnl_trade_time = int(pnl_trade['time'])
+                            pnl_trade_side = pnl_trade['side']
+                            
+                            # Ищем сделки открытия в обратном порядке
+                            for t in reversed(position_trades):
+                                if (int(t['time']) < pnl_trade_time and 
+                                    t['side'] != pnl_trade_side):
+                                    entry_trade = t
+                                    break
+                            
+                            if entry_trade:
+                                pnl_record = {
+                                    'symbol': clean_symbol(pnl_trade['symbol']),
+                                    'qty': abs(float(pnl_trade['qty'])),
+                                    'entry_price': float(entry_trade['price']),
+                                    'exit_price': float(pnl_trade['price']),
+                                    'closed_pnl': float(pnl_trade['realizedPnl']),
+                                    'close_time': datetime.fromtimestamp(
+                                        int(pnl_trade['time'])/1000
+                                    ).strftime('%Y-%m-%d %H:%M:%S'),
+                                    'exchange': 'binance'
+                                }
+                                print(f"[BINANCE] Created PNL record: {pnl_record}")
+                                all_closed_pnl.append(pnl_record)
+                    
+                    print(f"[BINANCE] Processed {len(trades)} trades")
                     
                 except Exception as e:
+                    print(f"[BINANCE] Error processing period: {str(e)}")
+                    import traceback
+                    print(f"[BINANCE] Traceback: {traceback.format_exc()}")
                     break
                 
                 current_start = current_end
@@ -148,9 +171,13 @@ class BinanceExchange(BaseExchange):
             else:  # sort by time
                 all_closed_pnl.sort(key=lambda x: x['close_time'], reverse=True)
             
+            print(f"[BINANCE] Returning {len(all_closed_pnl)} PNL records")
             return all_closed_pnl
             
         except Exception as e:
+            print(f"[BINANCE] Error in get_closed_pnl: {str(e)}")
+            import traceback
+            print(f"[BINANCE] Traceback: {traceback.format_exc()}")
             return []
 
     def get_symbol_chart_data(self, symbol):
@@ -473,7 +500,7 @@ class BinanceExchange(BaseExchange):
                             selected_klines = klines
                             print(f"[BINANCE] Использован последний интервал {interval_name} ({len(klines)} свечей)")
                     except Exception as e:
-                        print(f"[BINANCE] О��ибка при получении данных для интервала {interval_name}: {e}")
+                        print(f"[BINANCE] Ошибка при получении данных для интервала {interval_name}: {e}")
                         continue
                 
                 if selected_interval and selected_klines:
@@ -857,7 +884,7 @@ class BinanceExchange(BaseExchange):
     def _generate_recommendation(self, rsi, trend_direction, current_price, support_resistance, volume_trend):
         """Генерация торговой рекомендации"""
         if rsi >= 70 and trend_direction == "Восходящий" and volume_trend == "Падающий":
-            return "Возможна коррекция - рекомендуется фиксация прибыли"
+            return "Возможна коррекция - рекомендуется фиксация п��ибыли"
         elif rsi <= 30 and trend_direction == "Нисходящий" and volume_trend == "Растущий":
             return "Возможен отскок - рекомендуется поиск точки входа"
         elif trend_direction == "Восходящий" and current_price < support_resistance['resistance']:

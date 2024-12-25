@@ -138,6 +138,7 @@ class OkxExchange(BaseExchange):
     def get_closed_pnl(self, sort_by='time'):
         """Получает историю закрытых позиций с PNL"""
         try:
+            print("[OKX] Starting get_closed_pnl")
             all_closed_pnl = []
             
             # Получаем историю за последние 7 дней
@@ -152,15 +153,19 @@ class OkxExchange(BaseExchange):
                     'limit': '50'  # Увеличиваем лимит
                 }
                 
+                print(f"[OKX] Fetching closed positions with params: {params}")
                 closed_positions = self.client.private_get_account_positions(params)
+                print(f"[OKX] Raw response: {closed_positions}")
                 
                 if closed_positions and closed_positions.get('code') == '0' and closed_positions.get('data'):
                     positions = closed_positions['data']
+                    print(f"[OKX] Got {len(positions)} positions")
                     
                     for position in positions:
                         try:
                             # Проверяем наличие всех необходимых данных
                             if not all(k in position for k in ['instId', 'pos', 'avgPx', 'markPx', 'realizedPnl', 'upl', 'uTime']):
+                                print(f"[OKX] Skipping position due to missing fields: {position}")
                                 continue
                             
                             # Рассчитываем общий PNL (реализованный + нереализованный)
@@ -170,29 +175,66 @@ class OkxExchange(BaseExchange):
                             
                             # Пропускаем позиции с нулевым PNL
                             if total_pnl == 0:
+                                print(f"[OKX] Skipping position with zero PNL: {position}")
                                 continue
                             
                             symbol = clean_symbol(position['instId'])
                             position_size = abs(float(position.get('pos', 0)))
-                            entry_price = float(position.get('avgPx', 0))
-                            exit_price = float(position.get('markPx', 0))
                             
-                            # Создаем запись о закрытой позиции
-                            pnl_record = {
-                                'symbol': symbol,
-                                'qty': position_size,
-                                'entry_price': entry_price,
-                                'exit_price': exit_price,
-                                'closed_pnl': total_pnl,
-                                'close_time': datetime.fromtimestamp(
-                                    int(position.get('uTime', time.time() * 1000)) / 1000
-                                ).strftime('%Y-%m-%d %H:%M:%S'),
-                                'exchange': 'okx'
-                            }
-                            all_closed_pnl.append(pnl_record)
+                            # Получаем историю сделок для этой позиции
+                            print(f"[OKX] Fetching trades for {symbol}")
+                            trades = self.client.fetch_my_trades(
+                                symbol=position['instId'],
+                                limit=100
+                            )
+                            print(f"[OKX] Got trades response: {trades}")
+                            
+                            trades_by_position = {}
+                            
+                            # Группируем сделки по positionSide
+                            for trade in trades:
+                                pos_side = trade['info']['posSide']
+                                if pos_side not in trades_by_position:
+                                    trades_by_position[pos_side] = []
+                                trades_by_position[pos_side].append(trade)
+                            
+                            print(f"[OKX] Processing {len(trades)} trades")
+                            
+                            # Обрабатываем каждую группу сделок
+                            for pos_side, position_trades in trades_by_position.items():
+                                # Сортируем сделки по времени
+                                position_trades.sort(key=lambda x: x['timestamp'])
+                                
+                                # Находим все сделки с PnL (закрывающие сделки)
+                                for i, trade in enumerate(position_trades):
+                                    if float(trade['info']['fillPnl']) != 0:
+                                        # Ищем соответствующую сделку открытия
+                                        entry_trade = None
+                                        for prev_trade in reversed(position_trades[:i]):
+                                            if prev_trade['side'] != trade['side'] and float(prev_trade['info']['fillPnl']) == 0:
+                                                entry_trade = prev_trade
+                                                break
+                                        
+                                        if entry_trade:
+                                            pnl_record = {
+                                                'symbol': clean_symbol(trade['info']['instId']),
+                                                'qty': float(trade['info']['fillSz']),
+                                                'entry_price': float(entry_trade['info']['fillPx']),
+                                                'exit_price': float(trade['info']['fillPx']),
+                                                'closed_pnl': float(trade['info']['fillPnl']),
+                                                'close_time': datetime.fromtimestamp(
+                                                    int(trade['info']['fillTime']) / 1000
+                                                ).strftime('%Y-%m-%d %H:%M:%S'),
+                                                'exchange': 'okx'
+                                            }
+                                            print(f"[OKX] Created PNL record: {pnl_record}")
+                                            all_closed_pnl.append(pnl_record)
                             
                         except Exception as e:
                             print(f"[OKX] Error processing position: {str(e)}")
+                            print(f"[OKX] Position data: {position}")
+                            import traceback
+                            print(f"[OKX] Traceback: {traceback.format_exc()}")
                             continue
                     
                     # Сортировка результатов
@@ -201,16 +243,22 @@ class OkxExchange(BaseExchange):
                     else:  # sort by time
                         all_closed_pnl.sort(key=lambda x: x['close_time'], reverse=True)
                     
+                    print(f"[OKX] Returning {len(all_closed_pnl)} PNL records")
                     return all_closed_pnl
                 else:
+                    print(f"[OKX] No positions data received or error in response: {closed_positions}")
                     return []
                 
             except Exception as e:
                 print(f"[OKX] Error fetching closed positions: {str(e)}")
+                import traceback
+                print(f"[OKX] Traceback: {traceback.format_exc()}")
                 return []
                 
         except Exception as e:
             print(f"[OKX] Error in get_closed_pnl: {str(e)}")
+            import traceback
+            print(f"[OKX] Traceback: {traceback.format_exc()}")
             return []
 
     def get_symbol_chart_data(self, symbol):
