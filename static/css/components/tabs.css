@@ -1,0 +1,81 @@
+/* === Tabs Styles === */
+.tabs {
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 10px 15px;
+}
+
+.tab.active {
+    border-bottom-color: var(--blue-color);
+    color: var(--blue-color);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* === Tab Panel Styles === */
+.tab-panel {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.tab-panel-header {
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+}
+
+.tab-panel-content {
+    padding: 15px;
+}
+
+.tab-panel-button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 8px 16px;
+}
+
+.tab-panel-button.active {
+    border-bottom: 2px solid var(--blue-color);
+    color: var(--blue-color);
+}
+
+.tab-button {
+    padding: 10px 20px;
+    margin: 0 5px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: var(--section-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.tab-button.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.tab-content.hidden {
+    display: none;
+} 

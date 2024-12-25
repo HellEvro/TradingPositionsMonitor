@@ -1,0 +1,49 @@
+/* === Tree View Styles === */
+.tree-view {
+    margin: 20px 0;
+}
+
+.tree-item {
+    margin: 5px 0;
+    position: relative;
+}
+
+.tree-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 5px;
+    position: absolute;
+    left: -20px;
+    top: 2px;
+}
+
+.tree-content {
+    border-left: 1px solid var(--border-color);
+    margin-left: 20px;
+    padding-left: 20px;
+}
+
+.tree-label {
+    cursor: pointer;
+    display: block;
+    padding: 5px 0;
+}
+
+.tree-label:hover {
+    color: var(--blue-color);
+}
+
+.tree-children {
+    display: none;
+    margin-left: 20px;
+}
+
+.tree-item.expanded > .tree-children {
+    display: block;
+}
+
+.tree-item.expanded > .tree-toggle {
+    transform: rotate(90deg);
+} 

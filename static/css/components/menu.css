@@ -1,0 +1,102 @@
+/* === Menu Styles === */
+.menu {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 8px 0;
+}
+
+.menu-item {
+    color: var(--text-color);
+    cursor: pointer;
+    display: block;
+    padding: 8px 16px;
+    text-decoration: none;
+    transition: background-color 0.2s;
+}
+
+.menu-item:hover {
+    background: var(--border-color);
+}
+
+.menu-item.active {
+    background: var(--blue-color);
+    color: white;
+}
+
+.menu-divider {
+    background: var(--border-color);
+    height: 1px;
+    margin: 8px 0;
+}
+
+.menu-header {
+    color: var(--text-color);
+    font-size: 12px;
+    font-weight: bold;
+    opacity: 0.7;
+    padding: 8px 16px;
+    text-transform: uppercase;
+}
+
+/* === Burger Menu === */
+.burger-menu {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-right: 20px;
+}
+
+.burger-button {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 21px;
+    gap: 8px;
+    padding: 5px;
+}
+
+.burger-button:hover {
+    opacity: 0.8;
+}
+
+.menu-dropdown {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    display: none;
+    left: 0;
+    min-width: 200px;
+    position: absolute;
+    top: 100%;
+    z-index: 1000;
+}
+
+.menu-dropdown.active {
+    display: block;
+}
+
+.menu-item {
+    color: var(--text-color);
+    cursor: pointer;
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.menu-item:hover {
+    background: var(--border-color);
+}
+
+.menu-item.active {
+    background: var(--blue-color);
+    color: white;
+} 

@@ -1,0 +1,65 @@
+/* === Pagination Styles === */
+.pagination-wrapper {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.page-link {
+    align-items: center;
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    height: 32px;
+    justify-content: center;
+    min-width: 32px;
+    padding: 0 8px;
+    text-decoration: none;
+}
+
+.page-link:hover {
+    background: var(--border-color);
+}
+
+.page-link.active {
+    background: var(--blue-color);
+    border-color: var(--blue-color);
+    color: white;
+}
+
+.page-link.disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.pagination-btn {
+    padding: 5px 15px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--section-bg);
+    color: var(--text-color);
+    cursor: pointer;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#pageInfo {
+    color: var(--text-color);
+} 

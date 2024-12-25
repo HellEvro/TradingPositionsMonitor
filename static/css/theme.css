@@ -1,0 +1,54 @@
+:root {
+    --bg-color: #1a1a1a;
+    --blue-color: #1e88e5;
+    --border-color: #404040;
+    --green-color: #4CAF50;
+    --red-color: #f44336;
+    --section-bg: #2d2d2d;
+    --text-color: #fff;
+}
+
+[data-theme="light"] {
+    --bg-color: #f0f0f0;
+    --border-color: #ddd;
+    --section-bg: #fff;
+    --text-color: #000;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, sans-serif;
+    margin: 20px;
+}
+
+.theme-switch {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 10px 20px;
+    position: fixed;
+    right: 20px;
+    top: 20px;
+    transition: all 0.3s ease;
+}
+
+/* === Scrollbar Styles === */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--section-bg);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #666;
+} 

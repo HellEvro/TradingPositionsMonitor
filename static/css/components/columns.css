@@ -1,0 +1,38 @@
+/* === Column Layout === */
+.column {
+    background: var(--section-bg);
+    border-radius: 4px;
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 10px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+}
+
+.column-header {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+.column-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* === Column Container === */
+.columns-container {
+    display: flex;
+    flex: 1;
+    gap: 20px;
+    height: 100%;
+    width: 100%;
+}
+
+/* === Column Content === */
+.column-content {
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+} 

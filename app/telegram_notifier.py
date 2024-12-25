@@ -12,11 +12,14 @@ from app.language import get_current_language, get_telegram_message
 
 class TelegramNotifier:
     def __init__(self):
-        # Сначала инициализируем логгер
+        # Создаем директорию для логов, если она не существует
+        log_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'logs')
+        os.makedirs(log_dir, exist_ok=True)
+        
         logging.basicConfig(
-            filename='logs/telegram.log',
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s'
+            filename=os.path.join(log_dir, 'telegram.log'),
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            level=logging.INFO
         )
         self.logger = logging.getLogger('TelegramNotifier')
 
@@ -68,7 +71,7 @@ class TelegramNotifier:
         else:
             self._init_empty_states()
 
-        # Добавляем блокировку для безопасного вывода
+        # Добавляем блокировку д��я безопасного вывода
         self.print_lock = Lock()
         
         # Регистрируем обработчик завершения

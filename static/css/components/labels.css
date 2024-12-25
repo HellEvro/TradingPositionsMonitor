@@ -1,0 +1,31 @@
+/* === Label Styles === */
+.label {
+    background: var(--section-bg);
+    border-radius: 3px;
+    color: var(--text-color);
+    display: inline-block;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 8px;
+    text-transform: uppercase;
+}
+
+.label-primary {
+    background: var(--blue-color);
+    color: white;
+}
+
+.label-success {
+    background: var(--green-color);
+    color: white;
+}
+
+.label-warning {
+    background: #ff9800;
+    color: white;
+}
+
+.label-error {
+    background: var(--red-color);
+    color: white;
+} 

@@ -33,6 +33,35 @@ CHART_COLORS = {
     }
 }
 
+# Настройки графика статистики
+STATISTICS_CHART = {
+    'type': 'line',
+    'tension': 0.4,
+    'fill': True,
+    'responsive': True,
+    'maintain_aspect_ratio': False,
+    'animation': False,
+    'max_points': CHART_MAX_POINTS,
+    'height': 600,  # Высота графика в пикселях
+    'scales': {
+        'y': {
+            'begin_at_zero': False,
+            'grid': {
+                'color': 'rgba(255, 255, 255, 0.1)'
+            }
+        },
+        'x': {
+            'grid': {
+                'display': False
+            }
+        }
+    },
+    'legend': {
+        'display': False
+    },
+    'colors': CHART_COLORS  # Используем существующие цвета
+}
+
 # Настройки пагинации
 DEFAULT_PAGE_SIZE = 10
 AVAILABLE_PAGE_SIZES = [10, 50, 100]

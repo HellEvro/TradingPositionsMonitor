@@ -1,0 +1,14 @@
+/* === Hint Styles === */
+.hint {
+    background: rgba(30, 136, 229, 0.1);
+    border-left: 4px solid var(--blue-color);
+    color: var(--text-color);
+    font-size: 14px;
+    margin: 10px 0;
+    padding: 10px 15px;
+}
+
+.hint-icon {
+    color: var(--blue-color);
+    margin-right: 10px;
+} 

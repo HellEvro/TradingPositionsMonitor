@@ -1,0 +1,42 @@
+/* === Chip Styles === */
+.chip {
+    align-items: center;
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 16px;
+    display: inline-flex;
+    font-size: 14px;
+    gap: 5px;
+    padding: 4px 12px;
+}
+
+.chip-icon {
+    color: var(--text-color);
+    font-size: 16px;
+}
+
+.chip-close {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.7;
+    padding: 0;
+}
+
+.chip-close:hover {
+    opacity: 1;
+}
+
+.chip.success {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: var(--green-color);
+    color: var(--green-color);
+}
+
+.chip.error {
+    background: rgba(244, 67, 54, 0.1);
+    border-color: var(--red-color);
+    color: var(--red-color);
+} 

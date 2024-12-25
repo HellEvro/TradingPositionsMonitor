@@ -1,0 +1,112 @@
+/* === Header Layout === */
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 20px;
+}
+
+.header-title {
+    margin: 0;
+}
+
+.header-update {
+    font-size: 0.9em;
+}
+
+/* === Header Controls === */
+.controls-wrapper {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 20px;
+}
+
+.left-controls {
+    align-items: center;
+    display: flex;
+    gap: 20px;
+}
+
+/* === Header Menu === */
+.menu-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.menu-section {
+    display: flex;
+    align-items: center;
+}
+
+.controls-panel {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    z-index: 1000;
+}
+
+#high-profitable-header,
+#profitable-header,
+#losing-header {
+    font-size: 1.0em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.header-input {
+    width: 60px;
+    height: 30px;
+    padding: 2px 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-size: 0.9em;
+    font-weight: bold;
+    display: inline-block;
+    margin: 0 5px;
+    text-align: center;
+}
+
+.header-input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 3px rgba(74, 175, 80, 0.5);
+}
+
+#high-profitable-positions-header,
+#profitable-positions-header,
+#losing-positions-header {
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 4px;
+    background-color: var(--section-bg);
+}
+
+#high-profitable-positions-header {
+    color: var(--green-color);
+}
+
+#profitable-positions-header {
+    color: var(--green-color);
+}
+
+#losing-positions-header {
+    color: var(--red-color);
+}
+
+.header-prefix,
+.header-suffix,
+.position-count {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.position-count {
+    margin-left: 5px;
+} 

@@ -1,0 +1,35 @@
+.ticker a, 
+.pnl-table td a,
+.stats-value a.ticker,
+.rapid-growth-item a,
+.rapid-growth a,
+.rapid-growth-item > a,
+.rapid-growth .ticker > a,
+#top-profitable a,
+#top-losing a,
+.stats-container .stats-value a {
+    color: var(--text-color) !important;
+    text-decoration: none !important;
+    font-weight: bold;
+}
+
+.ticker a:hover, 
+.pnl-table td a:hover,
+.stats-value a.ticker:hover,
+.rapid-growth-item a:hover,
+.rapid-growth a:hover,
+.rapid-growth-item > a:hover,
+.rapid-growth .ticker > a:hover,
+#top-profitable a:hover,
+#top-losing a:hover,
+.stats-container .stats-value a:hover,
+.rapid-growth-item a:visited,
+.rapid-growth a:visited,
+.rapid-growth-item > a:visited,
+.rapid-growth .ticker > a:visited,
+#top-profitable a:visited,
+#top-losing a:visited,
+.stats-container .stats-value a:visited {
+    text-decoration: none !important;
+    color: var(--text-color) !important;
+} 

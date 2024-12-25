@@ -1,0 +1,70 @@
+/* === Table Layout === */
+.pnl-table {
+    border-collapse: collapse;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.pnl-table th, 
+.pnl-table td {
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px;
+    text-align: left;
+}
+
+.pnl-table th {
+    background-color: var(--section-bg);
+    font-weight: bold;
+}
+
+.pnl-table tr:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* === Table Links === */
+.pnl-table td a {
+    color: var(--text-color) !important;
+    font-weight: bold;
+    text-decoration: none !important;
+}
+
+.pnl-table td a:hover {
+    text-decoration: none !important;
+}
+
+/* === Table Values === */
+.positive-pnl {
+    color: #4CAF50;
+}
+
+.negative-pnl {
+    color: #f44336;
+}
+
+.high-pnl {
+    color: #FF8C00 !important;
+    font-weight: bold;
+}
+
+/* === Table Sort === */
+.sort-select {
+    background-color: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 0.9em;
+    padding: 3px 8px;
+}
+
+.sort-container {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+.sort-label {
+    color: var(--text-color);
+    font-size: 0.9em;
+    margin-right: 10px;
+} 

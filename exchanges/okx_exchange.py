@@ -3,6 +3,9 @@ import ccxt
 from datetime import datetime
 import time
 import traceback
+import pandas as pd
+import math
+import numpy as np
 
 def clean_symbol(symbol):
     """Очищает символ от USDT и форматирования OKX"""
@@ -19,47 +22,60 @@ def clean_symbol(symbol):
 class OkxExchange(BaseExchange):
     def __init__(self, api_key, api_secret, passphrase, position_mode='Hedge', limit_order_offset=0.01):
         super().__init__(api_key, api_secret, position_mode, limit_order_offset)
-        self.client = ccxt.okx({
-            'apiKey': api_key,
-            'secret': api_secret,
-            'password': passphrase,
-            'enableRateLimit': True
-        })
-        self.daily_pnl = {}
-        self.last_reset_day = None
-        self.max_profit_values = {}
-        self.max_loss_values = {}
-        
-        # Загружаем рынки при инициализации
-        print("Loading OKX markets...")
-        self.markets = self.client.load_markets()
-        print(f"Loaded {len(self.markets)} markets")
-        
-        # Определяем текущий режим позиций
         try:
-            account_config = self.client.private_get_account_config()
-            if account_config and account_config.get('code') == '0':
-                config_data = account_config.get('data', [{}])[0]
-                self.position_mode = 'Hedge' if config_data.get('posMode') == 'long_short_mode' else 'OneWay'
-                print(f"[OKX] Определен текущий режим позиций: {self.position_mode}")
-                
-                # Проверяем, что режим позиций соответствует запрошенному
-                if self.position_mode != position_mode:
-                    print(f"[OKX] Внимание: Текущий режим позиций ({self.position_mode}) отличается от запрошенного ({position_mode})")
-                    # Здесь можно добавить код для изменения режима позиций, если это необходимо
-            else:
-                print(f"[OKX] Не удалось определить режим позиций, используем {position_mode}")
+            self.client = ccxt.okx({
+                'apiKey': api_key,
+                'secret': api_secret,
+                'password': passphrase,
+                'enableRateLimit': True,
+                'options': {
+                    'defaultType': 'swap',
+                    'adjustForTimeDifference': True
+                },
+                'timeout': 30000,
+                'urls': {
+                    'api': {
+                        'public': 'https://www.okx.com/api/v5/public',
+                        'private': 'https://www.okx.com/api/v5'
+                    }
+                }
+            })
+            
+            self.daily_pnl = {}
+            self.last_reset_day = None
+            self.max_profit_values = {}
+            self.max_loss_values = {}
+            
+            # Загружаем рынки при инициализации
+            try:
+                self.markets = self.client.load_markets()
+            except Exception as market_error:
+                print(f"Error loading markets: {str(market_error)}")
+                raise Exception("Failed to load markets")
+            
+            # Определяем текущий режим позиций
+            try:
+                account_config = self.client.private_get_account_config()
+                if account_config and account_config.get('code') == '0':
+                    config_data = account_config.get('data', [{}])[0]
+                    self.position_mode = 'Hedge' if config_data.get('posMode') == 'long_short_mode' else 'OneWay'
+                    
+                    # Проверяем, что режим позиций соответствует запрошенному
+                    if self.position_mode != position_mode:
+                        print(f"[OKX] Warning: Current position mode ({self.position_mode}) differs from requested ({position_mode})")
+                else:
+                    self.position_mode = position_mode
+            except Exception as e:
+                print(f"[OKX] Error determining position mode: {str(e)}")
                 self.position_mode = position_mode
+                
         except Exception as e:
-            print(f"[OKX] Ошибка при определении режима позиций: {str(e)}")
-            print("[OKX] Используем режим по умолчанию:", position_mode)
-            self.position_mode = position_mode
+            print(f"Error initializing OKX exchange: {str(e)}")
+            raise Exception(f"Failed to initialize OKX exchange: {str(e)}")
 
     def get_positions(self):
         try:
-            print("\nFetching OKX positions...")
             positions = self.client.fetch_positions()
-            
             processed_positions = []
             rapid_growth_positions = []
             
@@ -70,21 +86,16 @@ class OkxExchange(BaseExchange):
                         continue
                     
                     symbol = clean_symbol(position['symbol'])
-                    print(f"Processing position: {symbol}")
-                    
                     current_pnl = float(position['unrealizedPnl'])
                     position_value = float(position['notional'])
                     roi = (current_pnl / position_value * 100) if position_value != 0 else 0
                     
-                    # Обновляем максимальные значения
                     if current_pnl > 0:
                         if symbol not in self.max_profit_values or current_pnl > self.max_profit_values[symbol]:
                             self.max_profit_values[symbol] = current_pnl
-                            print(f"New max profit for {symbol}: {current_pnl}")
                     else:
                         if symbol not in self.max_loss_values or current_pnl < self.max_loss_values[symbol]:
                             self.max_loss_values[symbol] = current_pnl
-                            print(f"New max loss for {symbol}: {current_pnl}")
 
                     position_info = {
                         'symbol': symbol,
@@ -100,7 +111,6 @@ class OkxExchange(BaseExchange):
                     
                     processed_positions.append(position_info)
                     
-                    # Проверяем быстрый рост
                     if symbol in self.daily_pnl:
                         start_pnl = self.daily_pnl[symbol]
                         if start_pnl > 0 and current_pnl > 0:
@@ -112,107 +122,87 @@ class OkxExchange(BaseExchange):
                                     'current_pnl': current_pnl,
                                     'growth_ratio': growth_ratio
                                 })
-                                print(f"Added to rapid growth positions")
                     else:
                         self.daily_pnl[symbol] = current_pnl
-                        print(f"Initialized daily PnL for {symbol}: {current_pnl}")
                         
                 except Exception as pos_error:
-                    print(f"Error processing position: {str(pos_error)}")
+                    print(f"[OKX] Error processing position: {str(pos_error)}")
                     continue
 
-            print(f"Processed {len(processed_positions)} positions")
             return processed_positions, rapid_growth_positions
             
         except Exception as e:
-            print(f"Error getting OKX positions: {str(e)}")
+            print(f"[OKX] Error getting positions: {str(e)}")
             return [], []
 
     def get_closed_pnl(self, sort_by='time'):
+        """Получает историю закрытых позиций с PNL"""
         try:
-            print("[OKX] Getting closed PnL...")
             all_closed_pnl = []
-            processed_trades = set()  # Множество для отслеживания уже обработанных сделок
+            
+            # Получаем историю за последние 7 дней
+            end_time = int(time.time() * 1000)
+            start_time = end_time - (7 * 24 * 60 * 60 * 1000)  # 7 days
             
             try:
-                # Получаем историю за несколько периодов
-                for i in range(5):  # Получаем 5 страниц истории
-                    params = {
-                        'instType': 'SWAP',
-                        'state': 'filled',
-                        'limit': '100'
-                    }
+                # Используем прямой запрос к API OKX для получения истории закрытых позиций
+                params = {
+                    'instType': 'SWAP',
+                    'state': 'closed',  # Получаем только закрытые позиции
+                    'limit': '50'  # Увеличиваем лимит
+                }
+                
+                closed_positions = self.client.private_get_account_positions(params)
+                
+                if closed_positions and closed_positions.get('code') == '0' and closed_positions.get('data'):
+                    positions = closed_positions['data']
                     
-                    if i > 0:
-                        # Для следующих страниц добавляем before из последней сделки предыдущей страницы
-                        if all_closed_pnl:
-                            last_trade_time = int(datetime.strptime(all_closed_pnl[-1]['close_time'], '%Y-%m-%d %H:%M:%S').timestamp() * 1000)
-                            params['before'] = str(last_trade_time)
-                    
-                    orders = self.client.private_get_trade_fills(params)
-                    trades_count = len(orders.get('data', []))
-                    print(f"[OKX] API Response for page {i+1}: {trades_count} trades")
-                    
-                    if not orders or orders.get('code') != '0' or not orders.get('data') or trades_count == 0:
-                        break
-                    
-                    trades = orders['data']
-                    
-                    # Группируем сделки по позициям и posSide
-                    positions = {}
-                    for trade in trades:
+                    for position in positions:
                         try:
-                            # Создаем уникальный идентификатор сделки
-                            trade_id = f"{trade['tradeId']}_{trade['fillTime']}"
-                            if trade_id in processed_trades:
+                            # Проверяем наличие всех необходимых данных
+                            if not all(k in position for k in ['instId', 'pos', 'avgPx', 'markPx', 'realizedPnl', 'upl', 'uTime']):
                                 continue
                             
-                            symbol = clean_symbol(trade['instId'])
-                            pos_side = trade['posSide']
-                            key = f"{symbol}_{pos_side}"
+                            # Рассчитываем общий PNL (реализованный + нереализованный)
+                            realized_pnl = float(position.get('realizedPnl', 0))
+                            unrealized_pnl = float(position.get('upl', 0))
+                            total_pnl = realized_pnl + unrealized_pnl
                             
-                            if key not in positions:
-                                positions[key] = []
-                            positions[key].append(trade)
-                            processed_trades.add(trade_id)
-                        except (ValueError, KeyError) as e:
-                            continue
-                    
-                    # Обрабатываем каждую позицию
-                    for key, symbol_trades in positions.items():
-                        try:
-                            # Сортируем сделки по времени
-                            symbol_trades.sort(key=lambda x: int(x['fillTime']))
+                            # Пропускаем позиции с нулевым PNL
+                            if total_pnl == 0:
+                                continue
                             
-                            # Находим сделки закрытия (с fillPnl != 0)
-                            closing_trades = [t for t in symbol_trades if float(t.get('fillPnl', 0)) != 0]
+                            symbol = clean_symbol(position['instId'])
+                            position_size = abs(float(position.get('pos', 0)))
+                            entry_price = float(position.get('avgPx', 0))
+                            exit_price = float(position.get('markPx', 0))
                             
-                            for close_trade in closing_trades:
-                                symbol = clean_symbol(close_trade['instId'])
-                                pnl_record = {
-                                    'symbol': symbol,
-                                    'qty': abs(float(close_trade.get('fillSz', 0))),
-                                    'entry_price': float(close_trade.get('fillPx', 0)),
-                                    'exit_price': float(close_trade.get('fillPx', 0)),
-                                    'closed_pnl': float(close_trade.get('fillPnl', 0)),
-                                    'close_time': datetime.fromtimestamp(
-                                        int(close_trade['fillTime']) / 1000
-                                    ).strftime('%Y-%m-%d %H:%M:%S')
-                                }
-                                all_closed_pnl.append(pnl_record)
+                            # Создаем запись о закрытой позиции
+                            pnl_record = {
+                                'symbol': symbol,
+                                'qty': position_size,
+                                'entry_price': entry_price,
+                                'exit_price': exit_price,
+                                'closed_pnl': total_pnl,
+                                'close_time': datetime.fromtimestamp(
+                                    int(position.get('uTime', time.time() * 1000)) / 1000
+                                ).strftime('%Y-%m-%d %H:%M:%S')
+                            }
+                            all_closed_pnl.append(pnl_record)
+                            
                         except Exception as e:
+                            print(f"[OKX] Error processing position: {str(e)}")
                             continue
                     
-                    time.sleep(0.5)  # Задержка между запросами страниц
-                
-                # Сортировка результатов
-                if sort_by == 'pnl':
-                    all_closed_pnl.sort(key=lambda x: abs(x['closed_pnl']), reverse=True)
+                    # Сортировка результатов
+                    if sort_by == 'pnl':
+                        all_closed_pnl.sort(key=lambda x: abs(float(x['closed_pnl'])), reverse=True)
+                    else:  # sort by time
+                        all_closed_pnl.sort(key=lambda x: x['close_time'], reverse=True)
+                    
+                    return all_closed_pnl
                 else:
-                    all_closed_pnl.sort(key=lambda x: x['close_time'], reverse=True)
-                
-                print(f"[OKX] Found total {len(all_closed_pnl)} unique closed positions")
-                return all_closed_pnl
+                    return []
                 
             except Exception as e:
                 print(f"[OKX] Error fetching closed positions: {str(e)}")
@@ -350,7 +340,7 @@ class OkxExchange(BaseExchange):
                     'message': 'Could not get current price'
                 }
             
-            # Определяем направление закрытия
+            # Определяем направление закры��ия
             close_side = "sell" if side == "Long" else "buy"
             
             # Базовые параметры ордера
@@ -424,3 +414,533 @@ class OkxExchange(BaseExchange):
         except Exception as e:
             print(f"Error getting OKX pairs: {str(e)}")
             return []
+
+    def get_chart_data(self, symbol, timeframe='1h', period='1w'):
+        """Получает данные для графика"""
+        try:
+            # Маппинг таймфреймов OKX
+            timeframe_map = {
+                '1m': '1m',
+                '5m': '5m',
+                '15m': '15m',
+                '30m': '30m',
+                '1h': '1H',
+                '4h': '4H',
+                '1d': '1D',
+                '1w': '1W'
+            }
+            
+            # Обработка таймфрейма "all"
+            if timeframe == 'all':
+                intervals = ['1m', '5m', '15m', '30m', '1h', '4h', '1d']
+                selected_interval = None
+                selected_klines = None
+                max_klines = 0
+
+                for interval in intervals:
+                    try:
+                        market_symbol = f"{symbol}-USDT-SWAP"
+                        params = {
+                            'instId': market_symbol,
+                            'bar': timeframe_map[interval],
+                            'limit': '1000'
+                        }
+                        response = self.client.publicGetMarketCandles(params)
+                        
+                        if response and response.get('data'):
+                            klines = response['data']
+                            if len(klines) > max_klines:
+                                max_klines = len(klines)
+                                selected_interval = interval
+                                selected_klines = klines
+                    except Exception as e:
+                        print(f"[OKX] Ошибка при получении данных для интервала {interval}: {str(e)}")
+                        continue
+
+                if selected_interval and selected_klines:
+                    print(f"[OKX] Выбран интервал {selected_interval} с {len(selected_klines)} свечами")
+                    candles = []
+                    for k in reversed(selected_klines):
+                        try:
+                            candle = {
+                                'time': int(float(k[0])),
+                                'open': float(k[1]),
+                                'high': float(k[2]),
+                                'low': float(k[3]),
+                                'close': float(k[4]),
+                                'volume': float(k[5])
+                            }
+                            candles.append(candle)
+                        except (ValueError, IndexError) as e:
+                            print(f"[OKX] Ошибка при обработке свечи: {e}, данные: {k}")
+                            continue
+                    
+                    candles.sort(key=lambda x: x['time'])
+                    return {
+                        'success': True,
+                        'data': {
+                            'candles': candles
+                        }
+                    }
+                else:
+                    return {
+                        'success': False,
+                        'error': 'Не удалось получить данные ни для одного интервала'
+                    }
+            
+            # Стандартная обработка для конкретного таймфрейма
+            interval = timeframe_map.get(timeframe)
+            if not interval:
+                print(f"[OKX] Неподдерживаемый таймфрейм: {timeframe}")
+                return {
+                    'success': False,
+                    'error': f'Неподдерживаемый таймфрейм: {timeframe}'
+                }
+            
+            market_symbol = f"{symbol}-USDT-SWAP"
+            print(f"[OKX] Getting chart data for {market_symbol} with interval {interval}")
+            
+            try:
+                params = {
+                    'instId': market_symbol,
+                    'bar': interval,
+                    'limit': '1000'
+                }
+                response = self.client.publicGetMarketCandles(params)
+                
+                if not response or not response.get('data'):
+                    print(f"[OKX] Нет данных свечей")
+                    return {
+                        'success': False,
+                        'error': 'Нет данных свечей'
+                    }
+                
+                candles = []
+                for k in reversed(response['data']):
+                    try:
+                        candle = {
+                            'time': int(float(k[0])),
+                            'open': float(k[1]),
+                            'high': float(k[2]),
+                            'low': float(k[3]),
+                            'close': float(k[4]),
+                            'volume': float(k[5])
+                        }
+                        candles.append(candle)
+                    except (ValueError, IndexError) as e:
+                        print(f"[OKX] Ошибка при обработке свечи: {e}, данные: {k}")
+                        continue
+                
+                candles.sort(key=lambda x: x['time'])
+                
+                print(f"[OKX] Подготовлен ответ с {len(candles)} свечами")
+                return {
+                    'success': True,
+                    'data': {
+                        'candles': candles
+                    }
+                }
+                
+            except Exception as e:
+                print(f"[OKX] Ошибка получения OHLCV: {str(e)}")
+                return {
+                    'success': False,
+                    'error': str(e)
+                }
+                
+        except Exception as e:
+            print(f"[OKX] Ошибка получения данных графика: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+
+    def get_indicators(self, symbol, timeframe='1h'):
+        """Получение значений индикаторов
+        
+        Args:
+            symbol (str): Символ торговой пары
+            timeframe (str): Таймфрейм
+            
+        Returns:
+            dict: Значения индикаторов
+        """
+        try:
+            print(f"[OKX] Запрос индикаторов для {symbol}, таймфрейм: {timeframe}")
+            
+            # Конвертируем таймфрейм в формат OKX
+            timeframe_map = {
+                '1m': '1m',
+                '5m': '5m',
+                '15m': '15m',
+                '30m': '30m',
+                '1h': '1H',
+                '4h': '4H',
+                '1d': '1D',
+                '1w': '1W'
+            }
+            
+            interval = timeframe_map.get(timeframe)
+            if not interval:
+                print(f"[OKX] Неподдерживаемый таймфрейм: {timeframe}")
+                return {
+                    'success': False,
+                    'error': f'Неподдерживаемый таймфрейм: {timeframe}'
+                }
+
+            # Получаем последние 100 свечей для расчета индикаторов
+            response = self.client.get_candlesticks(
+                instId=f"{symbol}-USDT-SWAP",
+                bar=interval,
+                limit=100
+            )
+
+            if not response or response.get('code') != '0':
+                return {
+                    'success': False,
+                    'error': 'Не удалось получить данные свечей'
+                }
+
+            klines = response.get('data', [])
+            if not klines:
+                return {
+                    'success': False,
+                    'error': 'Нет данных свечей'
+                }
+
+            # Преобразуем данные в массивы для расчетов
+            closes = np.array([float(k[4]) for k in klines])  # Цены закрытия
+            highs = np.array([float(k[2]) for k in klines])   # Максимумы
+            lows = np.array([float(k[3]) for k in klines])    # Минимумы
+            volumes = np.array([float(k[5]) for k in klines])  # Объемы
+            timestamps = [int(k[0]) for k in klines]          # Временные метки
+
+            # 1. Расчет RSI
+            rsi = self._calculate_rsi(closes)
+            current_rsi = rsi[-1]
+            
+            # Определение состояния RSI
+            rsi_status = "Нейтральный"
+            if current_rsi >= 70:
+                rsi_status = "Перекуплен"
+            elif current_rsi <= 30:
+                rsi_status = "Перепродан"
+
+            # 2. Расчет тренда
+            trend_info = self._calculate_trend(closes)
+            
+            # 3. Расчет объемов
+            volume_info = self._calculate_volume_metrics(volumes)
+
+            # 4. Расчет уровней поддержки и сопротивления
+            support_resistance = self._calculate_support_resistance(highs, lows, closes)
+
+            # 5. Расчет точек входа/выхода
+            entry_exit = self._calculate_entry_exit_points(
+                closes[-1], 
+                support_resistance['support'], 
+                support_resistance['resistance'],
+                trend_info['direction']
+            )
+
+            # 6. Расчет торгового канала
+            channel = self._calculate_trading_channel(highs, lows)
+
+            # Формируем рекомендацию
+            recommendation = self._generate_recommendation(
+                current_rsi,
+                trend_info['direction'],
+                closes[-1],
+                support_resistance,
+                volume_info['volume_trend']
+            )
+
+            return {
+                'success': True,
+                'data': {
+                    'time': {
+                        'timestamp': timestamps[-1],
+                        'datetime': datetime.fromtimestamp(timestamps[-1]/1000).strftime('%Y-%m-%d %H:%M:%S')
+                    },
+                    'price': {
+                        'current': closes[-1],
+                        'high_24h': max(highs[-24:]) if len(highs) >= 24 else highs[-1],
+                        'low_24h': min(lows[-24:]) if len(lows) >= 24 else lows[-1]
+                    },
+                    'rsi': {
+                        'value': round(current_rsi, 2),
+                        'status': rsi_status
+                    },
+                    'trend': {
+                        'direction': trend_info['direction'],
+                        'strength': trend_info['strength']
+                    },
+                    'volume': {
+                        'current_24h': volume_info['current_24h'],
+                        'change_percent': volume_info['change_percent'],
+                        'trend': volume_info['volume_trend']
+                    },
+                    'levels': {
+                        'support': support_resistance['support'],
+                        'resistance': support_resistance['resistance']
+                    },
+                    'entry_exit': {
+                        'entry_point': entry_exit['entry_point'],
+                        'stop_loss': entry_exit['stop_loss'],
+                        'target': entry_exit['target']
+                    },
+                    'channel': {
+                        'upper': channel['upper'],
+                        'lower': channel['lower'],
+                        'position': channel['position']
+                    },
+                    'recommendation': recommendation
+                }
+            }
+
+        except Exception as e:
+            print(f"[OKX] Ошибка при расчете индикаторов: {str(e)}")
+            return {
+                'success': False,
+                'error': str(e)
+            }
+
+    def _calculate_rsi(self, closes, period=14):
+        """Расчет RSI"""
+        deltas = np.diff(closes)
+        seed = deltas[:period+1]
+        up = seed[seed >= 0].sum()/period
+        down = -seed[seed < 0].sum()/period
+        rs = up/down
+        rsi = np.zeros_like(closes)
+        rsi[:period] = 100. - 100./(1. + rs)
+
+        for i in range(period, len(closes)):
+            delta = deltas[i-1]
+            if delta > 0:
+                upval = delta
+                downval = 0.
+            else:
+                upval = 0.
+                downval = -delta
+
+            up = (up*(period-1) + upval)/period
+            down = (down*(period-1) + downval)/period
+            rs = up/down
+            rsi[i] = 100. - 100./(1. + rs)
+
+        return rsi
+
+    def _calculate_trend(self, closes):
+        """Расчет тренда и его силы"""
+        # Используем 20-периодную SMA для определения тренда
+        sma20 = np.mean(closes[-20:])
+        current_price = closes[-1]
+        
+        # Определяем направление тренда
+        if current_price > sma20 * 1.02:  # Цена выше SMA на 2%
+            direction = "Восходящий"
+        elif current_price < sma20 * 0.98:  # Цена ниже SMA на 2%
+            direction = "Нисходящий"
+        else:
+            direction = "Боковой"
+
+        # Рассчитываем силу тренда на основе отклонения от SMA
+        deviation = abs((current_price - sma20) / sma20 * 100)
+        if deviation < 2:
+            strength = "Слабый"
+        elif deviation < 5:
+            strength = "Умеренный"
+        else:
+            strength = "Сильный"
+
+        return {
+            'direction': direction,
+            'strength': strength
+        }
+
+    def _calculate_volume_metrics(self, volumes):
+        """Расчет метрик объема"""
+        current_24h = sum(volumes[-24:]) if len(volumes) >= 24 else sum(volumes)
+        prev_24h = sum(volumes[-48:-24]) if len(volumes) >= 48 else sum(volumes)
+        
+        # Изменение объема
+        if prev_24h > 0:
+            change_percent = ((current_24h - prev_24h) / prev_24h) * 100
+        else:
+            change_percent = 0
+
+        # Определяем тренд объема
+        if change_percent > 10:
+            volume_trend = "Растущий"
+        elif change_percent < -10:
+            volume_trend = "Падающий"
+        else:
+            volume_trend = "Стабильный"
+
+        return {
+            'current_24h': current_24h,
+            'change_percent': round(change_percent, 2),
+            'volume_trend': volume_trend
+        }
+
+    def _calculate_support_resistance(self, highs, lows, closes):
+        """Расчет уровней поддержки и сопротивления"""
+        # Используем метод кластеризации цен
+        all_prices = np.concatenate([highs, lows, closes])
+        price_clusters = {}
+
+        # Группируем цены в кластеры с погрешностью 0.5%
+        for price in all_prices:
+            found_cluster = False
+            for cluster_price in list(price_clusters.keys()):
+                if abs(price - cluster_price) / cluster_price < 0.005:
+                    price_clusters[cluster_price] += 1
+                    found_cluster = True
+                    break
+            if not found_cluster:
+                price_clusters[price] = 1
+
+        # Сортируем кластеры по количеству точек
+        sorted_clusters = sorted(price_clusters.items(), key=lambda x: x[1], reverse=True)
+        
+        current_price = closes[-1]
+        support = current_price
+        resistance = current_price
+
+        # Находим ближайшие уровни поддержки и сопротивления
+        for price, _ in sorted_clusters:
+            if price < current_price and price > support:
+                support = price
+            elif price > current_price and price < resistance:
+                resistance = price
+
+        return {
+            'support': support,
+            'resistance': resistance
+        }
+
+    def _calculate_entry_exit_points(self, current_price, support, resistance, trend):
+        """Расчет точек входа, выхода и стоп-лосса"""
+        # Расчет точки входа
+        if trend == "Восходящий":
+            entry_point = support + (resistance - support) * 0.382  # Уровень Фибоначчи
+        else:
+            entry_point = resistance - (resistance - support) * 0.382
+
+        # Расчет стоп-лосса (2% от точки входа)
+        stop_loss = entry_point * 0.98 if trend == "Восходящий" else entry_point * 1.02
+
+        # Расчет целевой цены (соотношение риск/прибыль 1:2)
+        risk = abs(entry_point - stop_loss)
+        target = entry_point + (risk * 2) if trend == "Восходящий" else entry_point - (risk * 2)
+
+        return {
+            'entry_point': round(entry_point, 8),
+            'stop_loss': round(stop_loss, 8),
+            'target': round(target, 8)
+        }
+
+    def _calculate_trading_channel(self, highs, lows):
+        """Расчет торгового канала"""
+        # Используем последние 20 свечей для канала
+        period = 20
+        recent_highs = highs[-period:]
+        recent_lows = lows[-period:]
+
+        upper = np.max(recent_highs)
+        lower = np.min(recent_lows)
+        current = (highs[-1] + lows[-1]) / 2
+
+        # Определяем положение текущей цены в канале
+        channel_height = upper - lower
+        if channel_height > 0:
+            position_percent = ((current - lower) / channel_height) * 100
+            if position_percent < 25:
+                position = "Нижняя часть канала"
+            elif position_percent > 75:
+                position = "Верхняя часть канала"
+            else:
+                position = "Середина канала"
+        else:
+            position = "Неопределено"
+
+        return {
+            'upper': upper,
+            'lower': lower,
+            'position': position
+        }
+
+    def _generate_recommendation(self, rsi, trend_direction, current_price, support_resistance, volume_trend):
+        """Генерация торговой рекомендации"""
+        if rsi >= 70 and trend_direction == "Восходящий" and volume_trend == "Падающий":
+            return "Возможна коррекция - рекомендуется фиксация прибыли"
+        elif rsi <= 30 and trend_direction == "Нисходящий" and volume_trend == "Растущий":
+            return "Возможен отскок - рекомендуется поиск точки входа"
+        elif trend_direction == "Восходящий" and current_price < support_resistance['resistance']:
+            return "Восходящий тренд - рассмотреть покупку на откате"
+        elif trend_direction == "Нисходящий" and current_price > support_resistance['support']:
+            return "Нисходящий тренд - рассмотреть продажу на росте"
+        else:
+            return "Нейтральная ситуация - рекомендуется наблюдение"
+
+    def get_wallet_balance(self):
+        """Получает общий баланс кошелька и реализованный PNL"""
+        try:
+            # Получаем баланс аккаунта
+            account_response = self.client.fetch_balance({'type': 'swap'})
+            
+            if not account_response:
+                raise Exception("Empty account response")
+            
+            # Получаем значения из ответа API
+            total_balance = float(account_response.get('total', {}).get('USDT', 0))
+            available_balance = float(account_response.get('free', {}).get('USDT', 0))
+            
+            # Получаем позиции для расчета нереализованного PNL
+            positions = self.client.fetch_positions()
+            unrealized_pnl = sum(float(pos['unrealizedPnl']) for pos in positions if pos['contracts'] != 0)
+            
+            # Получаем реализованный PNL
+            realized_pnl = 0.0
+            
+            try:
+                # Получаем историю PNL за последние 7 дней
+                end_time = int(time.time() * 1000)
+                start_time = end_time - (7 * 24 * 60 * 60 * 1000)
+                
+                params = {
+                    'instType': 'SWAP',
+                    'begin': str(start_time),
+                    'end': str(end_time),
+                    'limit': '100'
+                }
+                
+                # Используем метод для получения истории сделок
+                trades = self.client.private_get_trade_fills(params)
+                
+                if trades and trades.get('code') == '0' and trades.get('data'):
+                    for trade in trades['data']:
+                        pnl = float(trade.get('fillPnl', 0))
+                        if pnl != 0:
+                            realized_pnl += pnl
+                
+            except Exception as e:
+                print(f"[OKX] Error fetching PNL history: {str(e)}")
+            
+            # Общий PNL = реализованный + нереализованный
+            total_pnl = realized_pnl + unrealized_pnl
+            
+            return {
+                'total_balance': total_balance,
+                'available_balance': available_balance,
+                'realized_pnl': total_pnl
+            }
+            
+        except Exception as e:
+            print(f"[OKX] Error in get_wallet_balance: {str(e)}")
+            return {
+                'total_balance': 0.0,
+                'available_balance': 0.0,
+                'realized_pnl': 0.0
+            }

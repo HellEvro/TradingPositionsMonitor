@@ -1,0 +1,60 @@
+/* === Filter Controls === */
+.pnl-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+
+.pnl-filter input {
+    width: 80px;
+    padding: 5px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
+}
+
+.exchange-select {
+    background-color: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 5px 10px;
+}
+
+.exchange-select option:disabled {
+    color: #666;
+    font-style: italic;
+}
+
+.exchange-select:focus {
+    border-color: var(--green-color);
+    outline: none;
+}
+
+/* === Filter Values === */
+.max-value {
+    color: #888;
+}
+
+[data-theme="light"] .max-value {
+    color: #aaa;
+}
+
+.blue {
+    color: var(--blue-color);
+}
+
+.update-btn {
+    padding: 5px 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s;
+} 

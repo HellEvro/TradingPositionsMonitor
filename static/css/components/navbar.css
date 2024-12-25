@@ -1,0 +1,29 @@
+/* === Navigation Bar === */
+.nav-bar {
+    align-items: center;
+    background: var(--section-bg);
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    height: 60px;
+    justify-content: space-between;
+    padding: 0 20px;
+}
+
+.nav-brand {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.nav-menu {
+    display: flex;
+    gap: 20px;
+}
+
+.nav-item {
+    color: var(--text-color);
+    text-decoration: none;
+}
+
+.nav-item:hover {
+    color: var(--blue-color);
+} 

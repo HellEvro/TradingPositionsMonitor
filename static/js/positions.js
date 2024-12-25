@@ -193,10 +193,14 @@ class PositionsManager {
         if (!this.lastData) return;
 
         const symbols = new Set();
-        // Собираем все уникальные символы
+        // Собираем все уникальные символы и добавляем проверку на undefined
         Object.values(this.lastData).forEach(positions => {
             if (Array.isArray(positions)) {
-                positions.forEach(pos => symbols.add(pos.symbol));
+                positions.forEach(pos => {
+                    if (pos && pos.symbol && pos.symbol !== 'undefined') {
+                        symbols.add(pos.symbol);
+                    }
+                });
             }
         });
 
@@ -233,7 +237,9 @@ class PositionsManager {
                 
                 document.querySelectorAll(`.mini-chart[data-symbol="${symbol}"]`)
                     .forEach(elem => {
-                        elem.src = `data:image/png;base64,${chartData.chart}`;
+                        if (elem) {
+                            elem.src = `data:image/png;base64,${chartData.chart}`;
+                        }
                     });
                 console.log(`Chart updated for ${symbol}`);
             }
@@ -248,12 +254,19 @@ class PositionsManager {
                 
                 // Обновляем индикатор и цвет ROI
                 document.querySelectorAll(`.position[data-symbol="${symbol}"]`).forEach(position => {
+                    if (!position) return;
+                    
                     const indicator = position.querySelector('.sma-indicator');
                     const roiSpan = position.querySelector('.position-footer span');
                     
-                    indicator.classList.remove('sma-loading');
-                    indicator.classList.add(sma200Data.above_sma200 ? 'sma-above' : 'sma-below');
-                    roiSpan.style.color = sma200Data.above_sma200 ? '#4CAF50' : '#f44336';
+                    if (indicator) {
+                        indicator.classList.remove('sma-loading');
+                        indicator.classList.add(sma200Data.above_sma200 ? 'sma-above' : 'sma-below');
+                    }
+                    
+                    if (roiSpan) {
+                        roiSpan.style.color = sma200Data.above_sma200 ? '#4CAF50' : '#f44336';
+                    }
                 });
             }
 
@@ -268,10 +281,14 @@ class PositionsManager {
         if (!this.lastData) return;
 
         const symbols = new Set();
-        // Собираем все уникальные символы
+        // Собираем все уникальные символы с проверкой на undefined
         Object.values(this.lastData).forEach(positions => {
             if (Array.isArray(positions)) {
-                positions.forEach(pos => symbols.add(pos.symbol));
+                positions.forEach(pos => {
+                    if (pos && pos.symbol && pos.symbol !== 'undefined') {
+                        symbols.add(pos.symbol);
+                    }
+                });
             }
         });
 
@@ -295,9 +312,9 @@ class PositionsManager {
             ...(this.lastData.losing || [])
         ];
         
-        // Собираем уникальные символы
+        // Собираем уникальные символы с проверкой на undefined
         allPositions.forEach(pos => {
-            if (pos && pos.symbol) {
+            if (pos && pos.symbol && pos.symbol !== 'undefined') {
                 symbols.add(pos.symbol);
             }
         });

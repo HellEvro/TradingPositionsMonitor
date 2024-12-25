@@ -1,0 +1,65 @@
+/* === Grid Layout === */
+.grid-container {
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.grid-item {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 15px;
+}
+
+/* === Flex Layout === */
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.flex-item {
+    flex: 1;
+    min-width: 200px;
+}
+
+/* === Grid System === */
+.grid-system {
+    display: grid;
+    gap: var(--grid-gap, 20px);
+    grid-template-columns: repeat(var(--grid-cols, 12), 1fr);
+}
+
+.col-span-1 { grid-column: span 1; }
+.col-span-2 { grid-column: span 2; }
+.col-span-3 { grid-column: span 3; }
+.col-span-4 { grid-column: span 4; }
+.col-span-5 { grid-column: span 5; }
+.col-span-6 { grid-column: span 6; }
+
+.full-width {
+    width: 100%;
+}
+
+.half-width {
+    width: calc(50% - 10px);
+}
+
+.third-width {
+    width: calc(33.33% - 14px);
+}
+
+.row-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.block-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+} 

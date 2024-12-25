@@ -1,0 +1,36 @@
+/* === Skeleton Loading Styles === */
+.skeleton {
+    animation: skeleton-loading 1s linear infinite alternate;
+    background: var(--section-bg);
+    border-radius: 4px;
+    display: inline-block;
+    height: 16px;
+    position: relative;
+    width: 100%;
+}
+
+.skeleton.circle {
+    border-radius: 50%;
+    height: 40px;
+    width: 40px;
+}
+
+.skeleton.text {
+    height: 16px;
+    margin-bottom: 8px;
+    width: 100%;
+}
+
+.skeleton.text:last-child {
+    margin-bottom: 0;
+    width: 80%;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        background-color: var(--section-bg);
+    }
+    100% {
+        background-color: var(--border-color);
+    }
+} 

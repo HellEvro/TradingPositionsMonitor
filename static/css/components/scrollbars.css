@@ -1,0 +1,56 @@
+/* === Global Scrollbar === */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--section-bg);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* === Stats Scrollbar === */
+.stats-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.stats-container::-webkit-scrollbar-track {
+    background: var(--section-bg);
+    border-radius: 4px;
+}
+
+.stats-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.stats-container::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* === Pairs List Scrollbar === */
+.pairs-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.pairs-list::-webkit-scrollbar-track {
+    background: var(--section-bg);
+    border-radius: 4px;
+}
+
+.pairs-list::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.pairs-list::-webkit-scrollbar-thumb:hover {
+    background: #666;
+} 

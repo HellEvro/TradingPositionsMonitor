@@ -1,0 +1,42 @@
+/* === Dropdown Styles === */
+.dropdown {
+    display: inline-block;
+    position: relative;
+}
+
+.dropdown-toggle {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+    padding: 8px 12px;
+}
+
+.dropdown-menu {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    display: none;
+    min-width: 150px;
+    position: absolute;
+    top: 100%;
+    z-index: 1000;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-item {
+    color: var(--text-color);
+    cursor: pointer;
+    display: block;
+    padding: 8px 12px;
+    text-decoration: none;
+}
+
+.dropdown-item:hover {
+    background: var(--border-color);
+} 

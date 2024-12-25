@@ -1,0 +1,178 @@
+/* === Position Cards === */
+.position {
+    background-color: var(--section-bg);
+    border-left: 3px solid var(--border-color);
+    font-size: 0.9em;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+.position-header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    min-height: 24px;
+}
+
+.position-footer {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+/* === Position States === */
+.profitable {
+    border-left-color: var(--green-color);
+}
+
+.losing {
+    border-left-color: var(--red-color);
+}
+
+.position.closing {
+    opacity: 0.7;
+    pointer-events: none;
+    position: relative;
+}
+
+.position.closed {
+    animation: fadeOut 0.5s forwards;
+    pointer-events: none;
+}
+
+.position.close-error {
+    animation: shake 0.5s;
+    border-color: var(--red-color);
+}
+
+/* === Position Side Indicators === */
+.position-side {
+    border-radius: 3px;
+    font-size: 0.8em;
+    font-weight: bold;
+    padding: 2px 6px;
+}
+
+.position-side.long {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--green-color);
+}
+
+.position-side.short {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--red-color);
+}
+
+/* === Position Actions === */
+.position-actions {
+    align-items: center;
+    display: flex;
+    gap: 8px;
+}
+
+.close-position-btn {
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.7;
+    padding: 4px 8px;
+    transition: all 0.2s;
+}
+
+.close-position-btn:hover {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+    opacity: 1;
+}
+
+/* === Position Headers === */
+#high-profitable-header,
+#profitable-header,
+#losing-header {
+    border-bottom: 1px solid var(--border-color);
+    font-size: 1.0em;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+#high-profitable-positions-header,
+#profitable-positions-header,
+#losing-positions-header {
+    background-color: var(--section-bg);
+    border-radius: 4px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    padding: 10px;
+}
+
+#high-profitable-positions-header {
+    color: var(--green-color);
+}
+
+#profitable-positions-header {
+    color: var(--green-color);
+}
+
+#losing-positions-header {
+    color: var(--red-color);
+}
+
+/* === Position Animations === */
+@keyframes fadeOut {
+    to { 
+        opacity: 0;
+        transform: translateX(100%);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+/* === Position Mini Chart === */
+.mini-chart {
+    background-color: var(--section-bg);
+    border-radius: 2px;
+    height: 24px;
+    margin-left: 10px;
+    object-fit: contain;
+    width: 60px;
+}
+
+/* === Position ROI === */
+.roi-positive {
+    color: var(--green-color) !important;
+}
+
+.roi-negative {
+    color: var(--red-color) !important;
+}
+
+/* === Position Ticker === */
+.ticker {
+    align-items: center;
+    display: flex;
+    flex: 1;
+    font-size: 1.1em;
+    font-weight: bold;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.ticker a {
+    color: inherit;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.ticker a:hover {
+    text-decoration: underline;
+} 

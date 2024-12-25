@@ -6,14 +6,14 @@ EXCHANGES = {
         'api_secret': "your_bybit_api_secret",
         'test_server': False,
         'position_mode': 'Hedge',
-        'limit_order_offset': 0.01
+        'limit_order_offset': 0.015
     },
     'BINANCE': {
         'enabled': False,  # Disabled by default
         'api_key': "your_binance_api_key",
         'api_secret': "your_binance_api_secret",
         'position_mode': 'Hedge',
-        'limit_order_offset': 0.02
+        'limit_order_offset': 0.015
     },
     'OKX': {
         'enabled': False,  # Disabled by default

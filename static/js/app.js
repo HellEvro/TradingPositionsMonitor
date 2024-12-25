@@ -1,23 +1,21 @@
 class App {
     constructor() {
-        console.log('[APP] Constructor called');
+        Logger.info('APP', 'Constructor called');
         try {
-            console.log('[APP] Starting initialization...');
+            Logger.info('APP', 'Starting initialization...');
             this.isUpdating = false;
             this.menuInitialized = false;
             this.currentTab = null;
             
-            // Добавляем логирование состояния
             this._logState = () => {
-                console.log('[APP] Current state:', {
+                Logger.debug('APP', 'Current state:', {
                     currentTab: this.currentTab,
                     menuInitialized: this.menuInitialized,
                     isUpdating: this.isUpdating
                 });
             };
             
-            // Инициализируем менеджеры сразу
-            console.log('[APP] Initializing managers');
+            Logger.info('APP', 'Initializing managers');
             this.statisticsManager = new StatisticsManager();
             this.positionsManager = new PositionsManager();
             this.exchangeManager = new ExchangeManager();
@@ -26,6 +24,80 @@ class App {
             this.currentPage = 1;
             this.allClosedPnlData = [];
             this.availablePairs = new Set();
+            
+            // Добавляем обработчик изменения таймфрейма
+            document.addEventListener('timeframeChanged', async (event) => {
+                console.log('[APP] Timeframe changed event received:', event.detail);
+                const { timeframe } = event.detail;
+                
+                // Получаем сохраненную пару из localStorage
+                const pair = localStorage.getItem('selectedPair');
+                if (!pair) {
+                    console.error('[APP] No selected pair found in localStorage');
+                    return;
+                }
+
+                console.log('[APP] Current pair:', pair, 'timeframe:', timeframe);
+                
+                try {
+                    // Показываем индикатор загрузки
+                    const loader = document.getElementById('pairInfoLoader');
+                    const content = document.getElementById('pairInfoContent');
+                    if (loader) loader.style.display = 'flex';
+                    if (content) content.classList.add('hidden');
+                    
+                    // Получаем новые данные для графика
+                    console.log('[APP] Requesting new chart data...');
+                    const chartData = await this.exchangeManager.getChartData(pair, timeframe);
+                    console.log('[APP] Received chart data:', chartData);
+                    
+                    if (chartData && chartData.success) {
+                        // Обновляем данные графика
+                        if (this.tradingChart) {
+                            console.log('[APP] Updating existing chart instance');
+                            this.tradingChart.updateData(chartData.data);
+                        } else {
+                            console.log('[APP] Creating new chart instance');
+                            const chartContainer = document.getElementById('tradingChart');
+                            this.tradingChart = new CanvasTradingChart('tradingChart', {
+                                theme: document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark',
+                                width: chartContainer.clientWidth,
+                                height: chartContainer.clientHeight,
+                                timeframe: timeframe
+                            });
+                            this.tradingChart.updateData(chartData.data);
+                        }
+                    } else {
+                        console.error('[APP] Failed to get chart data:', chartData);
+                        this.showErrorNotification('Ошибка при получении данных графика');
+                    }
+                    
+                    // Получаем новые индикаторы
+                    console.log('[APP] Requesting new indicators...');
+                    const indicators = await this.exchangeManager.getIndicators(pair, timeframe);
+                    console.log('[APP] Received indicators:', indicators);
+                    
+                    if (indicators && indicators.success) {
+                        this.updateIndicators(indicators);
+                    } else {
+                        console.error('[APP] Failed to get indicators:', indicators);
+                        this.showErrorNotification('Ошибка при получении индикаторов');
+                    }
+                    
+                    // Скрываем индикатор загрузки
+                    if (loader) loader.style.display = 'none';
+                    if (content) content.classList.remove('hidden');
+                } catch (error) {
+                    console.error('[APP] Error updating data after timeframe change:', error);
+                    this.showErrorNotification('Ошибка при обновлении данных');
+                    
+                    // Скрываем индикатор загрузки в случае ошибки
+                    const loader = document.getElementById('pairInfoLoader');
+                    const content = document.getElementById('pairInfoContent');
+                    if (loader) loader.style.display = 'none';
+                    if (content) content.classList.remove('hidden');
+                }
+            });
             
             // Ждем загрузки DOM для остальной инициализации
             if (document.readyState === 'loading') {
@@ -42,7 +114,8 @@ class App {
             this.initializeGlobalSearch();
             
         } catch (e) {
-            console.error('[APP] Error in constructor:', e);
+            Logger.error('APP', 'Error in constructor:', e);
+            NotificationManager.error('Error initializing application');
         }
     }
 
@@ -143,14 +216,21 @@ class App {
                 if (statsContainer) statsContainer.style.display = 'block';
                 document.querySelector('.main-container').style.display = 'flex';
             } else if (tabName === 'trading') {
-                if (tradingContainer) tradingContainer.style.display = 'block';
+                console.log('[TRADING] Showing trading tab');
+                if (tradingContainer) {
+                    console.log('[TRADING] Setting tradingContainer display to block');
+                    tradingContainer.style.display = 'block';
+                } else {
+                    console.error('[TRADING] tradingContainer not found');
+                }
                 document.querySelector('.main-container').style.display = 'none';
                 // Проверяем, инициализирован ли exchangeManager перед вызовом
                 if (this.exchangeManager) {
+                    console.log('[TRADING] Updating available pairs');
                     // Обновляем список доступных пар при переключении на вкладку
                     this.updateAvailablePairs();
                 } else {
-                    console.log('[MENU] Exchange manager not initialized yet, skipping pairs update');
+                    console.error('[TRADING] Exchange manager not initialized yet, skipping pairs update');
                 }
             } else if (tabName === 'closedPnl') {
                 if (closedPnlContainer) closedPnlContainer.style.display = 'block';
@@ -308,35 +388,51 @@ class App {
         }
     }
 
-    async updateClosedPnl(resetPage = true) {
+    async updateClosedPnl(resetPage = false) {
         try {
-            const sortSelect = document.getElementById('sortSelect');
-            if (!sortSelect) return;
+            if (resetPage) {
+                this.currentPage = 1;
+            }
 
-            const sortBy = sortSelect.value;
-            console.log('Updating closed PNL with sort:', sortBy);
-            
-            // Используем метод из exchangeManager
-            const closedPnl = await this.exchangeManager.fetchClosedPnl(sortBy);
-            
-            if (Array.isArray(closedPnl)) {
-                console.log(`Received ${closedPnl.length} closed positions`);
-                this.updateClosedPnlTable(closedPnl, resetPage);
+            const sortSelect = document.getElementById('sortSelect');
+            const sortBy = sortSelect ? sortSelect.value : 'time';
+
+            const response = await fetch(`/api/closed_pnl?sort=${sortBy}`);
+            const data = await response.json();
+
+            if (data.success) {
+                // Обновляем данные о балансе и PNL
+                if (data.wallet_data) {
+                    document.getElementById('totalBalance').textContent = 
+                        `${data.wallet_data.total_balance.toFixed(2)} USDT`;
+                    document.getElementById('availableBalance').textContent = 
+                        `${data.wallet_data.available_balance.toFixed(2)} USDT`;
+                    document.getElementById('realizedPnL').textContent = 
+                        `${data.wallet_data.realized_pnl.toFixed(2)} USDT`;
+                }
+
+                // Обновляем таблицу закрытых позиций
+                this.allClosedPnlData = data.closed_pnl;
+                this.updateClosedPnlTable(this.allClosedPnlData, false);
             } else {
-                console.error('Invalid closed PNL data received:', closedPnl);
+                console.error('Failed to get closed PNL data:', data.error);
+                this.showErrorNotification('Ошибка при получении данных о закрытых позициях');
             }
         } catch (error) {
-            console.error("Error updating closed PNL:", error);
-            this.showErrorMessage('Failed to load closed positions');
+            console.error('Error updating closed PNL:', error);
+            this.showErrorNotification('Ошибка при обновлении данных');
         }
     }
 
-    updateClosedPnlTable(data, resetPage) {
-        if (!data) return;
-        
-        // Сохраняем все данные
-        if (!this.allClosedPnlData || this.allClosedPnlData.length === 0) {
-            this.allClosedPnlData = data;
+    updateClosedPnlTable(data = null, resetPage = false) {
+        // Используем переданные данные или существующие
+        const displayData = data || this.allClosedPnlData;
+        if (!displayData || displayData.length === 0) {
+            const tableBody = document.getElementById('closedPnlTable');
+            if (tableBody) {
+                tableBody.innerHTML = '<tr><td colspan="6" class="no-data">Нет данных</td></tr>';
+            }
+            return;
         }
         
         // Получаем текущий поисковый запрос
@@ -344,11 +440,11 @@ class App {
         
         // Фильтруем данные по поисковому запросу
         const filteredData = searchQuery ? 
-            this.allClosedPnlData.filter(pnl => pnl.symbol.includes(searchQuery)) : 
-            this.allClosedPnlData;
+            displayData.filter(pnl => pnl.symbol.includes(searchQuery)) : 
+            displayData;
         
         // Получаем текущую страницу и размер страницы
-        const pageSize = parseInt(storageUtils.get('pageSize', DEFAULTS.PAGE_SIZE));
+        const pageSize = parseInt(localStorage.getItem('pageSize') || '10');
         const currentPage = resetPage ? 1 : (this.currentPage || 1);
         this.currentPage = currentPage;
         
@@ -363,11 +459,17 @@ class App {
             const pnlValue = parseFloat(pnl.closed_pnl);
             return `
                 <tr>
-                    <td>
+                    <td class="ticker-cell">
+                        <span class="ticker">${pnl.symbol}</span>
                         <a href="https://www.bybit.com/trade/usdt/${pnl.symbol}USDT" 
                            target="_blank" 
-                           class="ticker">
-                            ${pnl.symbol}
+                           class="external-link"
+                           title="Открыть на бирже">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                <polyline points="15 3 21 3 21 9"></polyline>
+                                <line x1="10" y1="14" x2="21" y2="3"></line>
+                            </svg>
                         </a>
                     </td>
                     <td>${pnl.qty}</td>
@@ -382,9 +484,9 @@ class App {
         }).join('');
         
         // Обновляем таблицу
-        const tableBody = domUtils.getElement('closedPnlTable');
+        const tableBody = document.getElementById('closedPnlTable');
         if (tableBody) {
-            tableBody.innerHTML = tableHtml;
+            tableBody.innerHTML = tableHtml || '<tr><td colspan="6" class="no-data">Нет данных</td></tr>';
         }
         
         // Обновляем элементы пагинации
@@ -436,11 +538,11 @@ class App {
     }
 
     showErrorNotification(message) {
-        const notification = document.createElement('div');
-        notification.className = 'error-notification';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        setTimeout(() => notification.remove(), 3000);
+        NotificationManager.error(message);
+    }
+
+    showSuccessNotification(message) {
+        NotificationManager.success(message);
     }
 
     toggleTheme() {
@@ -472,33 +574,84 @@ class App {
     }
 
     async updateAvailablePairs() {
+        console.log('[TRADING] Начало обновления доступных пар');
         try {
-            if (!this.exchangeManager) {
-                console.log('[PAIRS] Exchange manager not initialized yet');
-                return;
+            // Получаем текущие позиции
+            const positionsResponse = await fetch('/api/positions');
+            const positionsData = await positionsResponse.json();
+            const openPositions = new Set(positionsData.high_profitable.concat(
+                positionsData.profitable,
+                positionsData.losing
+            ).map(p => p.symbol));
+            
+            // Получаем все доступные пары
+            const response = await fetch('/api/pairs');
+            const data = await response.json();
+            
+            if (data.success) {
+                // Фильтруем пары, исключая те, что уже в позициях
+                const pairs = data.pairs.filter(pair => !openPositions.has(pair));
+                console.log('[TRADING] Отфильтрованные доступные пары:', pairs);
+                
+                // Сохраняем пары
+                this.availablePairs = pairs;
+                
+                // Отрисовываем пары
+                await this.renderAvailablePairs();
+                
+                // Анализируем тикеры для фильтрации
+                if (window.tradingFilters) {
+                    console.log('[TRADING] Starting ticker analysis...');
+                    const loadingElement = document.getElementById('filterLoading');
+                    const progressBar = document.getElementById('analysisProgress');
+                    
+                    if (loadingElement) loadingElement.style.display = 'block';
+                    if (progressBar) progressBar.style.width = '0%';
+                    
+                    const total = pairs.length;
+                    let completed = 0;
+                    
+                    try {
+                        const batchSize = 5; // Анализируем по 5 тикеров одновременно
+                        for (let i = 0; i < pairs.length; i += batchSize) {
+                            const batch = pairs.slice(i, i + batchSize);
+                            await Promise.all(batch.map(async (symbol) => {
+                                try {
+                                    const chartResponse = await fetch(`/api/chart/${symbol}?timeframe=1d&period=1M`);
+                                    const chartData = await chartResponse.json();
+                                    
+                                    if (chartData.success && chartData.data && chartData.data.candles) {
+                                        window.tradingFilters.analyzeTicker(symbol, chartData.data.candles);
+                                    }
+                                } catch (error) {
+                                    console.error(`[TRADING] Error analyzing ${symbol}:`, error);
+                                } finally {
+                                    completed++;
+                                    if (progressBar) {
+                                        const progress = (completed / total) * 100;
+                                        progressBar.style.width = `${progress}%`;
+                                        console.log(`[TRADING] Analysis progress: ${progress.toFixed(1)}%`);
+                                    }
+                                }
+                            }));
+                            
+                            // Небольшая задержка между батчами
+                            await new Promise(resolve => setTimeout(resolve, 100));
+                        }
+                    } finally {
+                        if (loadingElement) loadingElement.style.display = 'none';
+                        if (progressBar) progressBar.style.width = '0%';
+                    }
+                    console.log('[TRADING] Ticker analysis completed');
+                }
+                
+                // Если есть доступные пары, выбираем первую
+                if (this.availablePairs.length > 0) {
+                    this.selectPair(this.availablePairs[0]);
+                }
             }
-
-            // Получаем все активные позиции
-            const positions = document.querySelectorAll('.position');
-            const activePairs = new Set();
-            
-            positions.forEach(pos => {
-                const symbol = pos.getAttribute('data-symbol');
-                if (symbol) activePairs.add(symbol);
-            });
-
-            // Получаем все доступные пары с бирж��
-            const exchange = this.exchangeManager.getSelectedExchange();
-            const allPairs = await this.exchangeManager.getAllPairs();
-            
-            // Фильтруем только те пары, которых нет в активных позициях
-            this.availablePairs = new Set(
-                allPairs.filter(pair => !activePairs.has(pair))
-            );
-
-            this.renderAvailablePairs();
         } catch (error) {
-            console.error('Error updating available pairs:', error);
+            console.error('[TRADING] Error updating pairs:', error);
         }
     }
 
@@ -514,29 +667,84 @@ class App {
         });
     }
 
-    renderAvailablePairs() {
+    async renderAvailablePairs() {
+        console.log('[TRADING] Начало отрисовки доступных пар');
         const pairsList = document.getElementById('availablePairsList');
-        if (!pairsList) return;
+        
+        if (!pairsList) {
+            console.error('[TRADING] Element availablePairsList not found');
+            return;
+        }
 
+        // Очищаем список
         pairsList.innerHTML = '';
-
-        if (this.availablePairs.size === 0) {
+        
+        if (!this.availablePairs || !Array.isArray(this.availablePairs) || this.availablePairs.length === 0) {
+            console.log('[TRADING] Нет доступных пар для отображения');
             pairsList.innerHTML = `<div class="no-pairs">${languageUtils.translate('noAvailablePairs')}</div>`;
             return;
         }
 
-        Array.from(this.availablePairs)
+        // Сортируем и отображаем пары
+        this.availablePairs
             .sort()
             .forEach(pair => {
-                const div = document.createElement('div');
-                div.className = 'pair-item';
-                div.textContent = pair;
-                div.onclick = () => {
-                    // Здесь можно добавить действие при клике на пару
-                    console.log('Selected pair:', pair);
+                const li = document.createElement('li');
+                li.className = 'pair-item';
+                li.dataset.symbol = pair;
+                
+                const symbolSpan = document.createElement('span');
+                symbolSpan.className = 'pair-symbol';
+                symbolSpan.textContent = pair;
+                
+                // Создаем контейнер для flex-разметки
+                const container = document.createElement('div');
+                container.style.display = 'flex';
+                container.style.justifyContent = 'space-between';
+                container.style.alignItems = 'center';
+                container.style.width = '100%';
+                
+                container.appendChild(symbolSpan);
+                
+                // Добавляем иконку внешней ссылки точно как в closed_pnl
+                const link = document.createElement('a');
+                link.href = createTickerLink(pair);
+                link.target = '_blank';
+                link.className = 'external-link';
+                link.title = 'Открыть на бирже';
+                link.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                        <polyline points="15 3 21 3 21 9"></polyline>
+                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                    </svg>
+                `;
+                container.appendChild(link);
+                
+                li.appendChild(container);
+                
+                // Добавляем обработчик клика
+                li.onclick = (e) => {
+                    // Проверяем, что клик был не по ссылке
+                    if (!e.target.closest('.external-link')) {
+                        this.selectPair(pair);
+                    }
                 };
-                pairsList.appendChild(div);
+                
+                pairsList.appendChild(li);
             });
+
+        // Обновляем счетчик
+        const totalPairsElement = document.getElementById('totalPairs');
+        if (totalPairsElement) {
+            totalPairsElement.textContent = this.availablePairs.length;
+        }
+        
+        // Обновляем счетчик отфильтрованных пар
+        const filteredPairsElement = document.getElementById('filteredPairs');
+        if (filteredPairsElement) {
+            filteredPairsElement.textContent = this.availablePairs.length;
+        }
     }
 
     initializeGlobalSearch() {
@@ -544,6 +752,12 @@ class App {
         const clearButton = document.getElementById('clearSearch');
         
         if (searchInput) {
+            // Очищаем поле при инициализации
+            searchInput.value = '';
+            if (clearButton) {
+                clearButton.style.display = 'none';
+            }
+
             searchInput.addEventListener('input', (e) => {
                 const query = e.target.value.toUpperCase();
                 
@@ -552,7 +766,7 @@ class App {
                     clearButton.style.display = query ? 'block' : 'none';
                 }
                 
-                // Фильтрация в зависимости от текущей вкладки
+                // Фильтрация в зависимости от екущей вкладки
                 if (this.currentTab === 'positions') {
                     // Фильтруем позиции
                     document.querySelectorAll('.position').forEach(position => {
@@ -603,6 +817,301 @@ class App {
             }
         });
     }
+
+    selectPair(pair) {
+        console.log('[TRADING] Selecting pair:', pair);
+        try {
+            // Сохраняем выбранную пару в localStorage
+            localStorage.setItem('selectedPair', pair);
+            
+            // Показываем прелоадер
+            const loader = document.getElementById('pairInfoLoader');
+            const content = document.getElementById('pairInfoContent');
+            
+            if (loader) loader.style.display = 'flex';
+            if (content) content.classList.add('hidden');
+            
+            // Обновляем название выбранной пары
+            const pairNameElement = document.getElementById('selectedPairName');
+            if (pairNameElement) pairNameElement.textContent = pair;
+            
+            // Подсвечиваем выбранную пару в списке
+            document.querySelectorAll('.pair-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.textContent.trim() === pair) {
+                    item.classList.add('active');
+                    console.log('[TRADING] Set active pair:', item.textContent.trim());
+                }
+            });
+            
+            // Получаем данные для графика
+            if (this.exchangeManager) {
+                // Получаем текущий таймфрейм
+                const timeframe = localStorage.getItem('selectedTimeframe') || '1d';
+                console.log('[TRADING] Using timeframe:', timeframe);
+                
+                this.exchangeManager.getChartData(pair, timeframe)
+                    .then(chartData => {
+                        this.updateTradingChart(chartData);
+                        
+                        // Получаем индикаторы
+                        return this.exchangeManager.getIndicators(pair, timeframe);
+                    })
+                    .then(indicators => {
+                        this.updateIndicators(indicators);
+                        
+                        // Скрываем прелоадер и показываем контент
+                        if (loader) loader.style.display = 'none';
+                        if (content) content.classList.remove('hidden');
+                    })
+                    .catch(error => {
+                        console.error('[TRADING] Error loading data:', error);
+                        this.showErrorNotification('Ошибка при загрузке данных');
+                        
+                        // Скрываем прелоадер в случае ошибки
+                        if (loader) loader.style.display = 'none';
+                        if (content) content.classList.remove('hidden');
+                    });
+            }
+        } catch (error) {
+            console.error('[TRADING] Error selecting pair:', error);
+            this.showErrorNotification('Ошибка при выборе пары');
+            
+            // Скрываем прелоадер в случае ошибки
+            if (loader) loader.style.display = 'none';
+            if (content) content.classList.remove('hidden');
+        }
+    }
+    
+    updateTradingChart(data) {
+        console.log('[TRADING] Updating chart with data:', data);
+        
+        if (!data || !data.success || !data.data) {
+            console.error('[TRADING] Invalid chart data:', data);
+            return;
+        }
+
+        try {
+            // Проверяем структуру данных
+            console.log('[TRADING] Data structure:', {
+                hasData: !!data.data,
+                fields: data.data ? Object.keys(data.data) : [],
+                sampleData: data.data
+            });
+
+            // Проверяем наличие всех необходимых полей
+            if (!data.data.times || !data.data.open || !data.data.high || 
+                !data.data.low || !data.data.close || !data.data.volume) {
+                console.error('[TRADING] Missing required data fields');
+                return;
+            }
+
+            // Проверяем первую свечу для валидации данных
+            const firstCandle = {
+                time: data.data.times[0],
+                open: data.data.open[0],
+                high: data.data.high[0],
+                low: data.data.low[0],
+                close: data.data.close[0],
+                volume: data.data.volume[0]
+            };
+            console.log('[TRADING] First candle:', firstCandle);
+
+            // Фильтруем невалидные свечи
+            const validIndexes = data.data.times.reduce((acc, time, i) => {
+                if (time && 
+                    data.data.open[i] && 
+                    data.data.high[i] && 
+                    data.data.low[i] && 
+                    data.data.close[i] &&
+                    data.data.volume[i]) {
+                    acc.push(i);
+                }
+                return acc;
+            }, []);
+
+            console.log('[TRADING] Valid candles count:', validIndexes.length);
+
+            // Создаем отфильтрованные данные
+            const validData = {
+                times: validIndexes.map(i => data.data.times[i]),
+                open: validIndexes.map(i => data.data.open[i]),
+                high: validIndexes.map(i => data.data.high[i]),
+                low: validIndexes.map(i => data.data.low[i]),
+                close: validIndexes.map(i => data.data.close[i]),
+                volume: validIndexes.map(i => data.data.volume[i])
+            };
+
+            // Получаем размеры контейнера
+            const chartContainer = document.getElementById('tradingChart');
+            const containerInfo = {
+                width: chartContainer.clientWidth,
+                height: chartContainer.clientHeight,
+                offsetWidth: chartContainer.offsetWidth,
+                offsetHeight: chartContainer.offsetHeight,
+                isVisible: chartContainer.offsetParent !== null
+            };
+            console.log('[TRADING] Container dimensions:', containerInfo);
+
+            // Получаем текущий выбранный тикер
+            const selectedPair = localStorage.getItem('selectedPair');
+
+            // Создаем или обновляем график
+            if (!this.tradingChart) {
+                console.log('[TRADING] Creating new chart instance');
+                this.tradingChart = new CanvasTradingChart('tradingChart', {
+                    theme: document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark',
+                    width: containerInfo.width,
+                    height: containerInfo.height,
+                    ticker: selectedPair
+                });
+            } else {
+                // Обновляем тикер в существующем графике
+                this.tradingChart.updateTicker(selectedPair);
+            }
+
+            // Обновляем данные графика
+            console.log('[TRADING] Updating chart data');
+            this.tradingChart.updateData(validData);
+        } catch (error) {
+            console.error('[TRADING] Error updating chart:', error);
+            this.showErrorNotification('Ошибка при обновлении графика');
+        }
+    }
+    
+    updateIndicators(data) {
+        console.log('[TRADING] Updating indicators with data:', data);
+        if (!data || !data.data) {
+            console.error('[TRADING] Invalid indicators data');
+            return;
+        }
+
+        const indicators = data.data;
+
+        // Обновляем RSI
+        const rsiElement = document.getElementById('rsiValue');
+        if (rsiElement && indicators.rsi) {
+            rsiElement.textContent = `${indicators.rsi}`;
+            rsiElement.className = indicators.rsi > 70 ? 'overbought' : 
+                                 indicators.rsi < 30 ? 'oversold' : 'neutral';
+        }
+
+        // Обновляем MACD
+        const macdElement = document.getElementById('macdValue');
+        if (macdElement && indicators.macd) {
+            macdElement.innerHTML = `
+                MACD: ${indicators.macd.macd}<br>
+                Signal: ${indicators.macd.signal}<br>
+                Hist: ${indicators.macd.histogram}
+            `;
+            macdElement.className = indicators.macd.histogram > 0 ? 'positive' : 'negative';
+        }
+
+        // Обновляем MFI
+        const mfiElement = document.getElementById('mfiValue');
+        if (mfiElement && indicators.mfi) {
+            mfiElement.textContent = `${indicators.mfi}`;
+            mfiElement.className = indicators.mfi > 80 ? 'overbought' : 
+                                 indicators.mfi < 20 ? 'oversold' : 'neutral';
+        }
+
+        // Обновляем DMI
+        const dmiElement = document.getElementById('dmiValue');
+        if (dmiElement && indicators.dmi) {
+            dmiElement.innerHTML = `
+                +DI: ${indicators.dmi.plus_di}<br>
+                -DI: ${indicators.dmi.minus_di}<br>
+                ADX: ${indicators.dmi.adx}
+            `;
+            dmiElement.className = indicators.dmi.plus_di > indicators.dmi.minus_di ? 'positive' : 'negative';
+        }
+
+        // Обновляем анализ
+        this.updateAnalysis(indicators);
+    }
+    
+    updateAnalysis(data) {
+        console.log('[TRADING] Updating analysis with data:', data);
+        if (!data) {
+            console.error('[TRADING] Invalid analysis data');
+            return;
+        }
+
+        // Обновляем силу тренда
+        const trendStrengthElement = document.getElementById('trendStrength');
+        if (trendStrengthElement) {
+            trendStrengthElement.textContent = `Сила тренда: ${data.trendStrength}`;
+        }
+
+        // Обновляем направление тренда
+        const trendDirectionElement = document.getElementById('trendDirection');
+        if (trendDirectionElement) {
+            trendDirectionElement.textContent = `Направление: ${data.trendDirection}`;
+            trendDirectionElement.className = data.trendDirection === 'Восходящий' ? 'positive' : 
+                                            data.trendDirection === 'Нисходящий' ? 'negative' : 'neutral';
+        }
+
+        // Обновляем рекомендации
+        const recommendationElement = document.getElementById('positionRecommendation');
+        if (recommendationElement) {
+            recommendationElement.textContent = data.positionRecommendation;
+            recommendationElement.className = data.positionRecommendation.includes('покупку') ? 'positive' :
+                                           data.positionRecommendation.includes('продажу') ? 'negative' : 'neutral';
+        }
+
+        // Обновляем стратегию
+        const strategyElement = document.getElementById('smartMoneyStrategy');
+        if (strategyElement) {
+            strategyElement.textContent = data.smartMoneyStrategy;
+            strategyElement.className = data.smartMoneyStrategy.includes('покупка') ? 'positive' :
+                                      data.smartMoneyStrategy.includes('продажа') ? 'negative' : 'neutral';
+        }
+
+        // Обновляем уровни
+        const bottomLevelElement = document.getElementById('bottomLevel');
+        if (bottomLevelElement) {
+            bottomLevelElement.textContent = `Поддержка: ${data.bottomLevel}`;
+        }
+
+        const topLevelElement = document.getElementById('topLevel');
+        if (topLevelElement) {
+            topLevelElement.textContent = `Сопротивление: ${data.topLevel}`;
+        }
+    }
+
+    // Добавляем метод для глобального поиска
+    filterPairs(searchText) {
+        const pairsList = document.getElementById('availablePairsList');
+        if (!pairsList) return;
+
+        const items = pairsList.getElementsByTagName('li');
+        let visibleCount = 0;
+        
+        for (const item of items) {
+            const symbol = item.dataset.symbol;
+            const matchesSearch = !searchText || symbol.toLowerCase().includes(searchText.toLowerCase());
+            
+            // Проверяем текущий фильтр, если он установлен
+            let matchesFilter = true;
+            if (window.tradingFilters && window.tradingFilters.currentFilter !== 'все') {
+                const analysis = window.tradingFilters.tickersData.get(symbol);
+                if (analysis) {
+                    matchesFilter = window.tradingFilters.checkFilter(symbol, window.tradingFilters.currentFilter);
+                }
+            }
+            
+            const visible = matchesSearch && matchesFilter;
+            item.style.display = visible ? '' : 'none';
+            if (visible) visibleCount++;
+        }
+        
+        // Обновляем счетчики
+        const totalPairsElement = document.getElementById('totalPairs');
+        const filteredPairsElement = document.getElementById('filteredPairs');
+        
+        if (totalPairsElement) totalPairsElement.textContent = items.length;
+        if (filteredPairsElement) filteredPairsElement.textContent = visibleCount;
+    }
 }
 
 // В начале файла добавим функции для работы с localStorage
@@ -625,7 +1134,7 @@ function initializeSortSelects() {
     Object.entries(sortSelects).forEach(([selectId, containerId]) => {
         const select = document.getElementById(selectId);
         if (select) {
-            // Загружаем сохраненное значение
+            // Загруаем сохраненное значение
             const savedValue = loadFilterState(containerId);
             select.value = savedValue;
 

@@ -1,0 +1,50 @@
+/* === Modal Styles === */
+.modal {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    bottom: 0;
+    display: none;
+    justify-content: center;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 1050;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: var(--section-bg);
+    border-radius: 4px;
+    max-width: 500px;
+    padding: 20px;
+    position: relative;
+    width: 100%;
+}
+
+.modal-header {
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+}
+
+.modal-title {
+    font-size: 1.2em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 1.5em;
+    padding: 0;
+} 

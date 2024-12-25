@@ -1,0 +1,18 @@
+/* === Icon Styles === */
+.icon {
+    align-items: center;
+    display: inline-flex;
+    height: 24px;
+    justify-content: center;
+    width: 24px;
+}
+
+.icon-small {
+    height: 16px;
+    width: 16px;
+}
+
+.icon-large {
+    height: 32px;
+    width: 32px;
+} 

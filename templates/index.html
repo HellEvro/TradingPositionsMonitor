@@ -2,23 +2,36 @@
 <html lang="{{ get_current_language() }}">
 <head>
     <title>Trading Positions Monitor</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    
     <!-- Подключаем стили -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/theme.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/positions.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/trading.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/stats.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/notifications.css') }}">
     
     <!-- Сначала подключаем внешние библиотеки -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
     <!-- Затем подключаем наши модули в правильном порядке -->
     <script src="{{ url_for('static', filename='js/config.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/logger.js') }}"></script>
     <script src="{{ url_for('static', filename='js/constants.js') }}"></script>
     <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/canvas_trading_chart.js') }}"></script>
     <script src="{{ url_for('static', filename='js/positions.js') }}"></script>
     <script src="{{ url_for('static', filename='js/statistics.js') }}"></script>
     <script src="{{ url_for('static', filename='js/exchange_manager.js') }}"></script>
     <script src="{{ url_for('static', filename='js/position_closer.js') }}"></script>
     <script src="{{ url_for('static', filename='js/single_position_closer.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/components/trading_filters.js') }}"></script>
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/logger.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/notifications.js') }}"></script>
     <script>
         // Инициализация языка при загрузке страницы
         document.addEventListener('DOMContentLoaded', async () => {

@@ -1,0 +1,30 @@
+/* === Dividers === */
+hr.stats-divider {
+    border: 1px solid #eee;
+    margin: 15px 0;
+}
+
+.sort-container {
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+}
+
+/* === Section Dividers === */
+.pairs-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 15px;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.title-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+} 

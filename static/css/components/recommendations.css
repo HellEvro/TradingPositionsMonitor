@@ -1,0 +1,50 @@
+.trend-strength,
+.trend-direction,
+.position-recommendation,
+.smart-money-strategy {
+    padding: 8px;
+    border-radius: 4px;
+    margin: 4px 0;
+}
+
+.trend-strength.strong {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--green-color);
+}
+
+.trend-strength.moderate {
+    background: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+}
+
+.trend-strength.weak {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--red-color);
+}
+
+.trend-direction.up {
+    color: var(--green-color);
+}
+
+.trend-direction.down {
+    color: var(--red-color);
+}
+
+.position-recommendation {
+    font-weight: bold;
+}
+
+.position-recommendation.long {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--green-color);
+}
+
+.position-recommendation.short {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--red-color);
+}
+
+.position-recommendation.hold {
+    background: rgba(158, 158, 158, 0.1);
+    color: #9e9e9e;
+} 

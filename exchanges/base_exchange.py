@@ -57,3 +57,11 @@ class BaseExchange(ABC):
     def get_all_pairs(self):
         """Получение списка всех доступных бессрочных фьючерсов"""
         pass
+
+    def get_chart_data(self, symbol, timeframe='1h', period='1w'):
+        """Получение данных для графика"""
+        raise NotImplementedError
+
+    def get_indicators(self, symbol, timeframe='1h'):
+        """Получение значений индикаторов"""
+        raise NotImplementedError

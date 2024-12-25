@@ -1,0 +1,51 @@
+/* === Rapid Growth === */
+.rapid-growth {
+    background-color: var(--section-bg);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    font-size: 0.67em;
+}
+
+.rapid-growth-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: left;
+    color: #FF8C00;
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.rapid-growth-item {
+    display: inline-block;
+    margin-right: 20px;
+    padding: 5px 10px;
+    border-radius: 4px;
+    background-color: rgba(255, 140, 0, 0.1);
+    border: 1px solid #FF8C00;
+}
+
+.rapid-growth-item .growth-ratio {
+    color: #FF8C00;
+    font-weight: bold;
+}
+
+/* === Rapid Growth Links === */
+.rapid-growth a,
+.rapid-growth-item a,
+.rapid-growth .ticker a {
+    color: var(--text-color) !important;
+    text-decoration: none !important;
+}
+
+.rapid-growth a:hover,
+.rapid-growth-item a:hover,
+.rapid-growth .ticker a:hover,
+.rapid-growth a:visited,
+.rapid-growth-item a:visited,
+.rapid-growth .ticker a:visited {
+    color: var(--text-color) !important;
+    text-decoration: none !important;
+} 

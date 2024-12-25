@@ -1,0 +1,36 @@
+/* === Progress Bar === */
+.progress-bar {
+    background-color: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    height: 20px;
+    overflow: hidden;
+    width: 100%;
+}
+
+.progress-bar-fill {
+    background-color: var(--blue-color);
+    height: 100%;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+/* === Badges === */
+.badge {
+    background-color: var(--section-bg);
+    border-radius: 12px;
+    color: var(--text-color);
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 8px;
+}
+
+.badge.success {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: var(--green-color);
+}
+
+.badge.error {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: var(--red-color);
+} 

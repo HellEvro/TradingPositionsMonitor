@@ -1,0 +1,48 @@
+/* === Accordion Styles === */
+.accordion {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.accordion-item {
+    border-bottom: 1px solid var(--border-color);
+}
+
+.accordion-item:last-child {
+    border-bottom: none;
+}
+
+.accordion-header {
+    background: var(--section-bg);
+    cursor: pointer;
+    padding: 15px;
+    position: relative;
+}
+
+.accordion-header::after {
+    border-left: 2px solid var(--text-color);
+    border-bottom: 2px solid var(--text-color);
+    content: '';
+    height: 8px;
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%) rotate(-45deg);
+    transition: transform 0.3s;
+    width: 8px;
+}
+
+.accordion-item.active .accordion-header::after {
+    transform: translateY(-50%) rotate(135deg);
+}
+
+.accordion-content {
+    background: var(--section-bg);
+    display: none;
+    padding: 15px;
+}
+
+.accordion-item.active .accordion-content {
+    display: block;
+} 

@@ -1,0 +1,39 @@
+/* === Language Switcher === */
+.language-select {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+}
+
+/* === Tooltip Styles === */
+.tooltip {
+    display: inline-block;
+    position: relative;
+}
+
+.tooltip .tooltip-text {
+    background-color: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    font-size: 12px;
+    left: 50%;
+    opacity: 0;
+    padding: 5px 10px;
+    position: absolute;
+    text-align: center;
+    top: 100%;
+    transform: translateX(-50%);
+    transition: opacity 0.3s;
+    visibility: hidden;
+    white-space: nowrap;
+    z-index: 1;
+}
+
+.tooltip:hover .tooltip-text {
+    opacity: 1;
+    visibility: visible;
+} 

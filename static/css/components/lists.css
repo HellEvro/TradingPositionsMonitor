@@ -1,0 +1,41 @@
+/* === List Styles === */
+.list-group {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.list-item {
+    background: var(--section-bg);
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 15px;
+}
+
+.list-item:last-child {
+    border-bottom: none;
+}
+
+.list-item:hover {
+    background: var(--border-color);
+}
+
+.list-item.active {
+    background: var(--blue-color);
+    color: white;
+}
+
+/* === List View Styles === */
+.list-view {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.list-view-item {
+    border-bottom: 1px solid var(--border-color);
+    padding: 10px 0;
+}
+
+.list-view-item:last-child {
+    border-bottom: none;
+} 

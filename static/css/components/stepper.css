@@ -1,0 +1,55 @@
+/* === Stepper Styles === */
+.stepper {
+    counter-reset: step;
+    display: flex;
+    gap: 40px;
+    margin: 20px 0;
+    position: relative;
+}
+
+.stepper::before {
+    background: var(--border-color);
+    content: '';
+    height: 2px;
+    left: 0;
+    position: absolute;
+    top: 15px;
+    width: 100%;
+    z-index: 1;
+}
+
+.step {
+    flex: 1;
+    position: relative;
+    text-align: center;
+    z-index: 2;
+}
+
+.step-number {
+    align-items: center;
+    background: var(--section-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    display: flex;
+    height: 30px;
+    justify-content: center;
+    margin: 0 auto 10px;
+    width: 30px;
+}
+
+.step.active .step-number {
+    background: var(--blue-color);
+    border-color: var(--blue-color);
+    color: white;
+}
+
+.step.completed .step-number {
+    background: var(--green-color);
+    border-color: var(--green-color);
+    color: white;
+}
+
+.step-label {
+    color: var(--text-color);
+    font-size: 14px;
+} 

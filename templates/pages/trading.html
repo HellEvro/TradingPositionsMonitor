@@ -1,17 +1,292 @@
 <!-- Страница торговли -->
-<div class="section">
-    <div class="trading-content">
-        <div class="trading-header">
-            <div class="search-container">
-                <input type="text" 
-                       id="tradingSearch" 
-                       placeholder="Поиск пары..."
-                       class="search-input">
+<div class="trading-container">
+    <!-- Боковая панель с парами -->
+    <div class="trading-sidebar">
+        <!-- Фильтр тикеров -->
+        <div class="ticker-filter">
+            <div class="filter-buttons">
+                <div class="filter-row">
+                    <button class="filter-button active" data-filter="все">Все</button>
+                    <div class="square-buttons">
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <button class="filter-button" data-filter="рост">Рост</button>
+                    <div class="square-buttons">
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <button class="filter-button" data-filter="падение">Падение</button>
+                    <div class="square-buttons">
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <button class="filter-button" data-filter="флэт">Флэт</button>
+                    <div class="square-buttons">
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <button class="filter-button" data-filter="дно рынка">Дно</button>
+                    <div class="square-buttons">
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                    </div>
+                </div>
+                <div class="filter-row">
+                    <button class="filter-button" data-filter="хай рынка">Хай</button>
+                    <div class="square-buttons">
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                        <button class="square-button"></button>
+                    </div>
+                </div>
+            </div>
+            <style>
+                .filter-buttons {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 5px;
+                }
+                .filter-row {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                }
+                .square-buttons {
+                    display: flex;
+                    gap: 5px;
+                }
+                .square-button {
+                    width: 24px;
+                    height: 24px;
+                    padding: 0;
+                    background-color: #2c2c2c;
+                    border: 1px solid #3c3c3c;
+                    cursor: pointer;
+                }
+                .square-button:hover {
+                    background-color: #3c3c3c;
+                }
+                .filter-button {
+                    min-width: 80px;
+                }
+                .external-link {
+                    display: inline-flex;
+                    align-items: center;
+                }
+                .external-link svg {
+                    width: 14px;
+                    height: 14px;
+                }
+                .filter-loading {
+                    margin-top: 15px;
+                    padding: 10px;
+                }
+                .loading-text {
+                    display: block;
+                    margin-bottom: 5px;
+                    color: #888;
+                }
+                .loading-progress {
+                    width: 100%;
+                    height: 4px;
+                    background-color: #2c2c2c;
+                    border-radius: 2px;
+                    overflow: hidden;
+                }
+                .progress-bar {
+                    width: 0%;
+                    height: 100%;
+                    background-color: #4CAF50;
+                    transition: width 0.3s ease;
+                }
+            </style>
+            <div class="filter-loading" id="filterLoading">
+                <span class="loading-text">Анализ тикеров...</span>
+                <div class="loading-progress">
+                    <div class="progress-bar" id="analysisProgress"></div>
+                </div>
+            </div>
+            <script>
+                // Функция для обновления прогресс-бара
+                function updateProgress(percent) {
+                    const progressBar = document.getElementById('analysisProgress');
+                    if (progressBar) {
+                        progressBar.style.width = percent + '%';
+                    }
+                }
+
+                // Пример использования:
+                // При начале анализа:
+                function startAnalysis() {
+                    const filterLoading = document.getElementById('filterLoading');
+                    if (filterLoading) {
+                        filterLoading.style.display = 'block';
+                    }
+                    updateProgress(0);
+                }
+
+                // При обновлении прогресса:
+                // updateProgress(25); // 25% progress
+                // updateProgress(50); // 50% progress
+                // и так далее...
+
+                // При завершении:
+                function finishAnalysis() {
+                    updateProgress(100);
+                    setTimeout(() => {
+                        const filterLoading = document.getElementById('filterLoading');
+                        if (filterLoading) {
+                            filterLoading.style.display = 'none';
+                        }
+                    }, 500);
+                }
+            </script>
+        </div>
+        <!-- Контейнер для списка с фиксированной высотой -->
+        <div class="pairs-list-container">
+            <ul class="pairs-list" id="availablePairsList">
+                <!-- Пары будут добавлены через JavaScript -->
+            </ul>
+        </div>
+        <div id="pairsCounter" class="pairs-counter">
+            Всего: <span id="totalPairs">0</span> | Отфильтровано: <span id="filteredPairs">0</span>
+        </div>
+    </div>
+
+    <!-- Основная область торговли -->
+    <div class="trading-main">
+        <!-- Блок с графиком -->
+        <div class="trading-chart-block">
+            <div class="chart-header">
+                <div class="timeframe-buttons">
+                    <button class="timeframe-button" data-timeframe="1m">1M</button>
+                    <button class="timeframe-button" data-timeframe="5m">5M</button>
+                    <button class="timeframe-button" data-timeframe="15m">15M</button>
+                    <button class="timeframe-button" data-timeframe="1h">1H</button>
+                    <button class="timeframe-button" data-timeframe="4h">4H</button>
+                    <button class="timeframe-button active" data-timeframe="1d">1D</button>
+                </div>
+                <h3>График</h3>
+            </div>
+            <div class="chart-container" id="tradingChart">
+                <!-- График будет добавлен через JavaScript -->
             </div>
         </div>
-        <div class="available-pairs">
-            <h3 data-translate="availablePairs">Доступные пары</h3>
-            <div id="availablePairsList" class="pairs-grid"></div>
+
+        <!-- Средний ряд с аналитикой -->
+        <div class="trading-middle-row">
+            <!-- Блок аналитики и индикаторов -->
+            <div class="trading-analytics-block">
+                <h3>Аналитика и индикаторы</h3>
+                <div class="analytics-content">
+                    <!-- Базовая информация -->
+                    <div class="indicator-section">
+                        <h4>Основная информация</h4>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Время:</span>
+                            <span class="indicator-value" id="currentTime">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Текущая цена:</span>
+                            <span class="indicator-value" id="currentPrice">-</span>
+                        </div>
+                    </div>
+
+                    <!-- RSI и рекомендации -->
+                    <div class="indicator-section">
+                        <h4>RSI и рекомендации</h4>
+                        <div class="indicator-row">
+                            <span class="indicator-label">RSI (14):</span>
+                            <span class="indicator-value" id="rsiValue">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Состояние RSI:</span>
+                            <span class="indicator-value" id="rsiStatus">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Рекомендация:</span>
+                            <span class="indicator-value" id="tradingRecommendation">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Тренд и объем -->
+                    <div class="indicator-section">
+                        <h4>Тренд и объем</h4>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Направление тренда:</span>
+                            <span class="indicator-value" id="trendDirection">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Сила тренда:</span>
+                            <span class="indicator-value" id="trendStrength">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Объем (24ч):</span>
+                            <span class="indicator-value" id="volume24h">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Изменение объема:</span>
+                            <span class="indicator-value" id="volumeChange">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Точки входа/выхода -->
+                    <div class="indicator-section">
+                        <h4>Точки входа/выхода</h4>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Ближайшая поддержка:</span>
+                            <span class="indicator-value" id="supportLevel">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Ближайшее сопротивление:</span>
+                            <span class="indicator-value" id="resistanceLevel">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Оптимальная точка входа:</span>
+                            <span class="indicator-value" id="entryPoint">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Рекомендуемый стоп-лосс:</span>
+                            <span class="indicator-value" id="stopLoss">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Целевая цена:</span>
+                            <span class="indicator-value" id="targetPrice">-</span>
+                        </div>
+                    </div>
+
+                    <!-- Ценовой канал -->
+                    <div class="indicator-section">
+                        <h4>Торговый канал</h4>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Верхняя граница:</span>
+                            <span class="indicator-value" id="channelUpper">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Нижняя граница:</span>
+                            <span class="indicator-value" id="channelLower">-</span>
+                        </div>
+                        <div class="indicator-row">
+                            <span class="indicator-label">Положение в канале:</span>
+                            <span class="indicator-value" id="channelPosition">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

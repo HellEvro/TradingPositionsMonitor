@@ -1,0 +1,36 @@
+:root {
+    --bg-color: #1a1a1a;
+    --text-color: #fff;
+    --section-bg: #2d2d2d;
+    --border-color: #404040;
+    --green-color: #4CAF50;
+    --red-color: #f44336;
+    --blue-color: #1e88e5;
+}
+
+[data-theme="light"] {
+    --bg-color: #f0f0f0;
+    --text-color: #000;
+    --section-bg: #fff;
+    --border-color: #ddd;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.theme-switch {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    padding: 10px 20px;
+    border-radius: 5px;
+    background-color: var(--section-bg);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+} 

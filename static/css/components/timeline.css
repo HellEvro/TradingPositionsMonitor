@@ -1,0 +1,46 @@
+/* === Timeline Styles === */
+.timeline {
+    margin: 20px 0;
+    position: relative;
+}
+
+.timeline::before {
+    background: var(--border-color);
+    bottom: 0;
+    content: '';
+    left: 16px;
+    position: absolute;
+    top: 0;
+    width: 2px;
+}
+
+.timeline-item {
+    margin-bottom: 20px;
+    margin-left: 40px;
+    position: relative;
+}
+
+.timeline-dot {
+    background: var(--section-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    height: 12px;
+    left: -34px;
+    position: absolute;
+    top: 4px;
+    width: 12px;
+}
+
+.timeline-content {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 15px;
+}
+
+.timeline-date {
+    color: var(--text-color);
+    font-size: 0.9em;
+    margin-bottom: 5px;
+    opacity: 0.8;
+} 

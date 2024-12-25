@@ -1,0 +1,25 @@
+/* === Status Indicators === */
+.status-indicator {
+    animation: none;
+    border-radius: 50%;
+    display: inline-block;
+    height: 10px;
+    margin-right: 5px;
+    width: 10px;
+}
+
+.status-indicator.online {
+    animation: blink 2s infinite;
+    background-color: var(--green-color);
+}
+
+.status-indicator.offline {
+    background-color: var(--red-color);
+}
+
+/* === Animations === */
+@keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+} 

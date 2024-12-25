@@ -1,0 +1,22 @@
+/* === Collapsible Styles === */
+.collapsible {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin: 10px 0;
+}
+
+.collapsible-header {
+    background: var(--section-bg);
+    cursor: pointer;
+    padding: 15px;
+    position: relative;
+}
+
+.collapsible-content {
+    display: none;
+    padding: 15px;
+}
+
+.collapsible.open .collapsible-content {
+    display: block;
+} 

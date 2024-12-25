@@ -18,6 +18,8 @@ from exchanges.exchange_factory import ExchangeFactory
 import json
 from threading import Lock
 from app.language import get_current_language, save_language
+import concurrent.futures
+from functools import partial
 
 # Добавим константы
 class DEFAULTS:
@@ -167,7 +169,7 @@ def background_update():
                 'total_profit': total_profit,
                 'total_loss': total_loss,
                 'high_profitable_count': len(high_profitable),
-                'profitable_count': len(profitable),
+                'profitable_count': len(high_profitable) + len(profitable),
                 'losing_count': len(losing),
                 'top_profitable': top_profitable,
                 'top_losing': top_losing,
@@ -217,12 +219,47 @@ def open_browser():
 def index():
     return render_template('index.html', get_current_language=get_current_language)
 
+def analyze_symbol(symbol, force_update=False):
+    """Анализирует отдельный символ"""
+    clean_symbol = symbol.replace('USDT', '')
+    analysis = determine_trend_and_position(clean_symbol, force_update)
+    if analysis:
+        return {
+            'symbol': symbol,
+            'trend_analysis': analysis
+        }
+    return None
+
+def analyze_positions_parallel(positions, max_workers=10):
+    """Параллельный анализ позиций"""
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        analyzed = list(filter(None, executor.map(
+            lambda p: analyze_symbol(p['symbol']),
+            positions
+        )))
+        
+        for position, analysis in zip(positions, analyzed):
+            if analysis and analysis['symbol'] == position['symbol']:
+                position['trend_analysis'] = analysis['trend_analysis']
+                
+        return [p for p in positions if 'trend_analysis' in p]
+
+def analyze_pairs_parallel(pairs, max_workers=10):
+    """Параллельный анализ пар"""
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        return list(filter(None, executor.map(analyze_symbol, pairs)))
+
 @app.route('/get_positions')
 def get_positions():
     pnl_threshold = float(request.args.get('pnl_threshold', 100))
     
+    try:
+        all_available_pairs = exchange.get_all_pairs()
+    except Exception as e:
+        print(f"Ошибка при получении списка пар: {str(e)}")
+        all_available_pairs = []
+    
     if not positions_data['high_profitable'] and not positions_data['profitable'] and not positions_data['losing']:
-        print("No active positions")
         return jsonify({
             'high_profitable': [],
             'profitable': [],
@@ -240,7 +277,8 @@ def get_positions():
             },
             'rapid_growth': [],
             'last_update': time.strftime('%Y-%m-%d %H:%M:%S'),
-            'growth_multiplier': GROWTH_MULTIPLIER
+            'growth_multiplier': GROWTH_MULTIPLIER,
+            'all_pairs': []
         })
 
     # Получаем все позиции
@@ -248,10 +286,11 @@ def get_positions():
                     positions_data['profitable'] + 
                     positions_data['losing'])
     
-    # Считаем общую статистику по всем позициям
-    total_trades = len(all_positions)
-    total_profitable = len([p for p in all_positions if p['pnl'] > 0])  # Все прибыльные
-    total_losing = len([p for p in all_positions if p['pnl'] < 0])      # Все убыточне
+    # Создаем множество символов из активных позиций
+    active_position_symbols = set(position['symbol'] for position in all_positions)
+    
+    # Фильтруем доступные пары
+    available_pairs = [pair for pair in all_available_pairs if pair not in active_position_symbols]
     
     # Распределяем позиции по категориям
     high_profitable = []
@@ -289,14 +328,12 @@ def get_positions():
         'total_profit': total_profit,
         'total_loss': total_loss,
         'high_profitable_count': len(high_profitable),
-        'profitable_count': total_profitable,  # Используем общее оичество прибыльных
-        'losing_count': total_losing,         # Используем общее количество убыточных
+        'profitable_count': len(profitable),
+        'losing_count': len(losing),
         'top_profitable': top_profitable,
         'top_losing': top_losing,
-        'total_trades': total_trades
+        'total_trades': len(all_positions)
     }
-    
-    print(f"Updated positions: {len(all_positions)} (HP: {len(high_profitable)}, P: {len(profitable)}, L: {len(losing)})")
     
     return jsonify({
         'high_profitable': high_profitable,
@@ -305,8 +342,14 @@ def get_positions():
         'stats': stats,
         'rapid_growth': positions_data['rapid_growth'],
         'last_update': positions_data['last_update'],
-        'growth_multiplier': GROWTH_MULTIPLIER
+        'growth_multiplier': GROWTH_MULTIPLIER,
+        'all_pairs': available_pairs
     })
+
+@app.route('/api/positions')
+def api_positions():
+    """API endpoint for positions - redirects to get_positions"""
+    return get_positions()
 
 @app.route('/api/closed_pnl')
 def get_closed_pnl():
@@ -315,12 +358,21 @@ def get_closed_pnl():
         sort_by = request.args.get('sort', 'time')
         print(f"[API] Getting closed PNL, sort by: {sort_by}")
         
+        # Получаем баланс и PNL
+        wallet_data = exchange.get_wallet_balance()
+        
+        # Получаем закрытые позиции
         closed_pnl = exchange.get_closed_pnl(sort_by)
         print(f"[API] Found {len(closed_pnl)} closed positions")
         
         return jsonify({
             'success': True,
-            'closed_pnl': closed_pnl
+            'closed_pnl': closed_pnl,
+            'wallet_data': {
+                'total_balance': wallet_data['total_balance'],
+                'available_balance': wallet_data['available_balance'],
+                'realized_pnl': wallet_data['realized_pnl']
+            }
         })
     except Exception as e:
         print(f"[API] Error getting closed PNL: {str(e)}")
@@ -674,6 +726,281 @@ def get_pairs():
             'error': str(e)
         }), 500
 
+@app.route('/api/chart/<symbol>')
+def get_chart_data(symbol):
+    try:
+        timeframe = request.args.get('timeframe', '1h')
+        period = request.args.get('period', '1w')
+        
+        # Используем глобальную переменную exchange
+        data = exchange.get_chart_data(symbol, timeframe, period)
+        
+        # Проверяем успешность ответа
+        if not data.get('success'):
+            return jsonify(data), 500
+            
+        # Возвращаем данные без дополнительного оборачивания
+        return jsonify(data)
+        
+    except Exception as e:
+        app.logger.error(f'Error getting chart data: {str(e)}')
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/indicators/<symbol>')
+def get_indicators(symbol):
+    try:
+        timeframe = request.args.get('timeframe', '1h')
+        
+        # Используем глобальную переменную exchange
+        data = exchange.get_indicators(symbol, timeframe)
+        
+        return jsonify({
+            'success': True,
+            'data': data
+        })
+    except Exception as e:
+        app.logger.error(f'Error getting indicators: {str(e)}')
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@app.route('/api/blacklist', methods=['POST'])
+def manage_blacklist():
+    """Управление черным списком"""
+    try:
+        data = request.get_json()
+        action = data.get('action')
+        symbol = data.get('symbol')
+        
+        if not action or not symbol:
+            return jsonify({
+                'success': False,
+                'error': 'Missing required parameters'
+            }), 400
+            
+        blacklist_file = 'data/blacklist.json'
+        os.makedirs('data', exist_ok=True)
+        
+        try:
+            with open(blacklist_file, 'r') as f:
+                blacklist = json.load(f)
+        except:
+            blacklist = []
+            
+        if action == 'add':
+            if symbol not in blacklist:
+                blacklist.append(symbol)
+        elif action == 'remove':
+            if symbol in blacklist:
+                blacklist.remove(symbol)
+                
+        with open(blacklist_file, 'w') as f:
+            json.dump(blacklist, f)
+            
+        return jsonify({
+            'success': True,
+            'blacklist': blacklist
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+# Добавляем глобальные переменные для кэширования
+ticker_analysis_cache = {}
+CACHE_TIMEOUT = 300  # 5 минут
+
+def determine_trend_and_position(symbol, force_update=False):
+    """Определяет тренд и позицию цены на графике с кэшированием"""
+    global ticker_analysis_cache
+    current_time = time.time()
+    
+    # Проверяем кэш, если не требуется принудительное обновление
+    if not force_update and symbol in ticker_analysis_cache:
+        cached_data = ticker_analysis_cache[symbol]
+        if current_time - cached_data['timestamp'] < CACHE_TIMEOUT:
+            return cached_data['data']
+    
+    try:
+        # Получаем исторические данные
+        data = exchange.get_chart_data(symbol, '1d', '1M')
+        if not data.get('success'):
+            return None
+            
+        candles = data.get('data', {}).get('candles', [])
+        if not candles:
+            return None
+            
+        # Находим минимальную и максимальную цену
+        min_price = min(float(candle['low']) for candle in candles)
+        max_price = max(float(candle['high']) for candle in candles)
+        current_price = float(candles[-1]['close'])
+        
+        # Определяем позицию цены в процентах от диапазона
+        price_range = max_price - min_price
+        if price_range == 0:
+            return None
+            
+        position_percent = ((current_price - min_price) / price_range) * 100
+        
+        # Определяем тренд
+        period = 14  # период для определения тренда
+        if len(candles) < period:
+            return None
+            
+        recent_prices = [float(candle['close']) for candle in candles[-period:]]
+        first_half = sum(recent_prices[:period//2]) / (period//2)
+        second_half = sum(recent_prices[period//2:]) / (period//2)
+        
+        if second_half > first_half * 1.02:  # 2% разница для определения роста
+            trend = 'рост'
+        elif first_half > second_half * 1.02:  # 2% разница для определения падения
+            trend = 'падение'
+        else:
+            trend = 'флэт'
+            
+        # Определяем состояние тикера
+        state = None
+        if 0 <= position_percent <= 10:
+            if trend in ['флэт', 'рост']:
+                state = 'дно рынка'
+            else:
+                state = 'падение'
+        elif 10 < position_percent <= 40:
+            state = trend
+        elif 40 < position_percent <= 60:
+            state = trend
+        elif 60 < position_percent <= 90:
+            if trend == 'флэт':
+                state = 'диапазон распродажи'
+            elif trend == 'падение':
+                state = 'диапазон падения'
+            else:
+                state = 'рост'
+        elif 90 < position_percent <= 100:
+            if trend == 'флэт':
+                state = 'хай рынка'
+            elif trend == 'падение':
+                state = 'падение'
+            else:
+                state = 'диапазон распродажи'
+        
+        result = {
+            'trend': trend,
+            'position_percent': position_percent,
+            'state': state
+        }
+        
+        # Сохраняем результат в кэш
+        ticker_analysis_cache[symbol] = {
+            'data': result,
+            'timestamp': current_time
+        }
+        
+        return result
+        
+    except Exception:
+        return None
+
+def clear_old_cache():
+    """Очищает устаревшие данные из кэша"""
+    global ticker_analysis_cache
+    current_time = time.time()
+    expired_symbols = [
+        symbol for symbol, data in ticker_analysis_cache.items()
+        if current_time - data['timestamp'] >= CACHE_TIMEOUT
+    ]
+    for symbol in expired_symbols:
+        del ticker_analysis_cache[symbol]
+
+@app.route('/api/ticker_analysis/<symbol>')
+def get_ticker_analysis(symbol):
+    """Получение анализа тикера (тренд и позиция на графике)"""
+    try:
+        force_update = request.args.get('force_update', '0') == '1'
+        analysis = determine_trend_and_position(symbol, force_update)
+        if analysis:
+            return jsonify({
+                'success': True,
+                'data': analysis,
+                'cached': not force_update and symbol in ticker_analysis_cache
+            })
+        return jsonify({
+            'success': False,
+            'error': 'Could not analyze ticker'
+        }), 400
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+def background_cache_cleanup():
+    """Фоновая очистка кэша"""
+    while True:
+        try:
+            clear_old_cache()
+        except Exception as e:
+            print(f"Error in cache cleanup: {str(e)}")
+        time.sleep(60)  # Проверяем каждую минуту
+
+# Кэш для хранения данных свечей
+candles_cache = {}
+CACHE_TIMEOUT = 300  # 5 минут
+
+@app.route('/api/candles/<symbol>')
+def get_candles(symbol):
+    """Получение свечей для расчета тренда на клиенте"""
+    current_time = time.time()
+    
+    # Проверяем кэш
+    if symbol in candles_cache:
+        cached_data = candles_cache[symbol]
+        if current_time - cached_data['timestamp'] < CACHE_TIMEOUT:
+            return jsonify(cached_data['data'])
+    
+    try:
+        # Получаем данные за последний месяц
+        data = exchange.get_chart_data(symbol, '1d', '1M')
+        if not data.get('success'):
+            return jsonify({'success': False, 'error': 'Не удалось получить данные'})
+        
+        # Сохраняем в кэш
+        candles_cache[symbol] = {
+            'data': data,
+            'timestamp': current_time
+        }
+        
+        return jsonify(data)
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+def clear_old_cache():
+    """Очистка устаревших данных из кэша"""
+    current_time = time.time()
+    expired_symbols = [
+        symbol for symbol, data in candles_cache.items()
+        if current_time - data['timestamp'] >= CACHE_TIMEOUT
+    ]
+    for symbol in expired_symbols:
+        del candles_cache[symbol]
+
+def background_cache_cleanup():
+    """Фоновая очистка кэша"""
+    while True:
+        try:
+            clear_old_cache()
+        except Exception:
+            pass
+        time.sleep(60)  # Проверяем каждую минуту
+
 if __name__ == '__main__':
     # Создаем директорию для логов
     if not os.path.exists('logs'):
@@ -693,6 +1020,11 @@ if __name__ == '__main__':
             daily_report_thread = threading.Thread(target=send_daily_report)
             daily_report_thread.daemon = True
             daily_report_thread.start()
+            
+        # Запускаем поток очистки кэша
+        cache_cleanup_thread = threading.Thread(target=background_cache_cleanup)
+        cache_cleanup_thread.daemon = True
+        cache_cleanup_thread.start()
     
     # Запускаем Flask-сервер
     app.run(debug=APP_DEBUG, host=APP_HOST, port=APP_PORT, use_reloader=True) 

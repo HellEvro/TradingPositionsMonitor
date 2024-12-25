@@ -173,4 +173,145 @@ class ExchangeManager {
             return [];
         }
     }
+
+    async getChartData(symbol, timeframe = '1h', period = '1w') {
+        try {
+            console.log(`[EXCHANGE] Getting chart data for ${symbol} with timeframe ${timeframe}`);
+            const response = await fetch(`/api/chart/${symbol}?timeframe=${timeframe}&period=${period}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log(`[EXCHANGE] Received raw chart data:`, JSON.stringify(data, null, 2));
+
+            // Проверяем успешность ответа
+            if (!data.success || !data.data || !data.data.candles) {
+                console.error('[EXCHANGE] Invalid response format:', JSON.stringify(data, null, 2));
+                console.error('[EXCHANGE] Expected format: { success: true, data: { candles: [...] } }');
+                throw new Error('Invalid response format');
+            }
+
+            // Проверяем структуру данных
+            const firstCandle = data.data.candles[0];
+            console.log(`[EXCHANGE] First candle structure:`, JSON.stringify(firstCandle, null, 2));
+
+            // Преобразуем данные в нужный формат
+            const transformedData = {
+                success: true,
+                data: {
+                    times: [],
+                    open: [],
+                    high: [],
+                    low: [],
+                    close: [],
+                    volume: []
+                }
+            };
+
+            // Проверяем и преобразуем каждую свечу
+            data.data.candles.forEach((candle, index) => {
+                // Проверяем наличие всех необходимых полей
+                if (!candle.time && !candle.timestamp) {
+                    console.warn(`[EXCHANGE] Missing time data in candle ${index}:`, JSON.stringify(candle, null, 2));
+                    return;
+                }
+
+                if (typeof candle.open !== 'number' && typeof candle.open !== 'string' ||
+                    typeof candle.high !== 'number' && typeof candle.high !== 'string' ||
+                    typeof candle.low !== 'number' && typeof candle.low !== 'string' ||
+                    typeof candle.close !== 'number' && typeof candle.close !== 'string' ||
+                    typeof candle.volume !== 'number' && typeof candle.volume !== 'string') {
+                    console.warn(`[EXCHANGE] Invalid price/volume data in candle ${index}:`, JSON.stringify(candle, null, 2));
+                    return;
+                }
+
+                // Определяем временную метку
+                let timestamp;
+                if (typeof candle.time === 'number') {
+                    timestamp = candle.time;
+                } else if (typeof candle.time === 'string') {
+                    timestamp = new Date(candle.time).getTime();
+                } else if (typeof candle.timestamp === 'number') {
+                    timestamp = candle.timestamp;
+                } else if (typeof candle.timestamp === 'string') {
+                    timestamp = new Date(candle.timestamp).getTime();
+                } else {
+                    console.warn(`[EXCHANGE] Unable to determine timestamp for candle ${index}:`, JSON.stringify(candle, null, 2));
+                    return;
+                }
+
+                // Добавляем данные в массивы
+                transformedData.data.times.push(timestamp);
+                transformedData.data.open.push(parseFloat(candle.open));
+                transformedData.data.high.push(parseFloat(candle.high));
+                transformedData.data.low.push(parseFloat(candle.low));
+                transformedData.data.close.push(parseFloat(candle.close));
+                transformedData.data.volume.push(parseFloat(candle.volume));
+            });
+
+            // Проверяем, что у нас есть данные после преобразования
+            if (transformedData.data.times.length === 0) {
+                console.error('[EXCHANGE] No valid candles after transformation');
+                throw new Error('No valid candles');
+            }
+
+            // Сортируем данные по времени
+            const sortedIndexes = transformedData.data.times
+                .map((time, index) => ({ time, index }))
+                .sort((a, b) => a.time - b.time)
+                .map(item => item.index);
+
+            // Применяем сортировку ко всем массивам
+            transformedData.data = {
+                times: sortedIndexes.map(i => transformedData.data.times[i]),
+                open: sortedIndexes.map(i => transformedData.data.open[i]),
+                high: sortedIndexes.map(i => transformedData.data.high[i]),
+                low: sortedIndexes.map(i => transformedData.data.low[i]),
+                close: sortedIndexes.map(i => transformedData.data.close[i]),
+                volume: sortedIndexes.map(i => transformedData.data.volume[i])
+            };
+
+            console.log('[EXCHANGE] Transformed data:', {
+                candleCount: transformedData.data.times.length,
+                timeRange: {
+                    start: new Date(transformedData.data.times[0]).toISOString(),
+                    end: new Date(transformedData.data.times[transformedData.data.times.length - 1]).toISOString()
+                }
+            });
+
+            return transformedData;
+        } catch (error) {
+            console.error(`[EXCHANGE] Error getting chart data for ${symbol}:`, error);
+            throw error;
+        }
+    }
+
+    async getIndicators(symbol, timeframe = '1h') {
+        try {
+            console.log(`[EXCHANGE] Getting indicators for ${symbol} with timeframe ${timeframe}`);
+            
+            // Формируем URL с параметрами
+            const url = new URL(`/api/indicators/${symbol}`, window.location.origin);
+            url.searchParams.append('timeframe', timeframe);
+            
+            console.log(`[EXCHANGE] Request URL: ${url.toString()}`);
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log(`[EXCHANGE] Received indicators:`, data);
+            
+            if (!data.success) {
+                throw new Error('Failed to get indicators');
+            }
+            
+            return data;
+        } catch (error) {
+            console.error(`[EXCHANGE] Error getting indicators for ${symbol}:`, error);
+            throw error;
+        }
+    }
 } 

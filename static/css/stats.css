@@ -1,0 +1,202 @@
+/* === Stats Container === */
+.stats-container {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    height: calc(100vh - 100px);
+    overflow-y: auto;
+    position: sticky;
+    top: 80px;
+    width: 300px;
+}
+
+/* === Stats Chart === */
+.stats-container .chart-container {
+    height: 200px;
+    margin: 10px 0;
+    background-color: var(--card-bg);
+    border-radius: 4px;
+}
+
+/* === Stats Values === */
+.stats-value {
+    display: table-cell !important;
+    font-size: 1em !important;
+    margin: 0 !important;
+}
+
+.stats-row {
+    display: table;
+    margin: 5px 0;
+    width: 100%;
+}
+
+.stats-label {
+    color: var(--text-color);
+    display: table-cell;
+}
+
+/* === Stats Section === */
+.stats-section {
+    margin: 15px 0;
+    padding: 10px;
+    background-color: var(--card-bg);
+    border-radius: 4px;
+}
+
+.stats-flex-row {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+hr.stats-divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 15px 0;
+}
+
+/* === Stats Headers === */
+.stats-container h3 {
+    font-size: 0.97em;
+    font-weight: bold;
+    color: var(--text-color);
+    margin: 10px 0;
+}
+
+/* === Stats TOP-3 === */
+#top-profitable .stats-value, 
+#top-losing .stats-value,
+#top-profitable .ticker,
+#top-losing .ticker,
+#top-profitable .coin-name,
+#top-losing .coin-name,
+#top-profitable .pnl-value,
+#top-losing .pnl-value {
+    font-size: 0.9em;
+}
+
+#top-profitable a,
+#top-losing a,
+#top-profitable .ticker a,
+#top-losing .ticker a {
+    color: var(--text-color) !important;
+    text-decoration: none !important;
+    font-weight: bold;
+}
+
+#top-profitable a:hover,
+#top-losing a:hover,
+#top-profitable .ticker a:hover,
+#top-losing .ticker a:hover {
+    color: var(--link-hover-color) !important;
+    text-decoration: none !important;
+}
+
+/* === Stats Values === */
+.positive {
+    color: #4CAF50;
+}
+
+.negative {
+    color: #f44336;
+}
+
+/* === Stats Scrollbar === */
+.stats-container::-webkit-scrollbar {
+    width: 8px;
+}
+
+.stats-container::-webkit-scrollbar-track {
+    background: var(--section-bg);
+    border-radius: 4px;
+}
+
+.stats-container::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 4px;
+}
+
+.stats-container::-webkit-scrollbar-thumb:hover {
+    background: #666;
+}
+
+/* === Stats Totals === */
+.total-profit {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--text-color);
+    margin: 15px 0;
+}
+
+.total-profit .value {
+    font-size: 1.1em;
+}
+
+.total-profit .positive {
+    color: #4CAF50;
+}
+
+.total-profit .negative {
+    color: #f44336;
+}
+
+/* === Stats Counters === */
+.stats-counters {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 0;
+}
+
+.stats-counter {
+    text-align: center;
+}
+
+.stats-counter .value {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.stats-counter .label {
+    font-size: 0.9em;
+    color: var(--secondary-text);
+}
+
+/* === Stats TOP-3 Additional Styles === */
+#top-profitable .stats-value,
+#top-losing .stats-value {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin: 5px 0 !important;
+    font-size: 1em !important;
+}
+
+#top-profitable .ticker,
+#top-losing .ticker {
+    display: inline !important;
+    margin: 0 !important;
+}
+
+#top-profitable .value,
+#top-losing .value {
+    display: inline !important;
+    margin: 0 !important;
+}
+
+#top-profitable, #top-losing {
+    margin: 10px 0;
+}
+
+#top-profitable a:visited,
+#top-losing a:visited,
+#top-profitable .ticker a:visited,
+#top-losing .ticker a:visited {
+    color: var(--text-color) !important;
+    text-decoration: none !important;
+}
+
+.pnl-value.negative {
+    color: #f44336;
+} 

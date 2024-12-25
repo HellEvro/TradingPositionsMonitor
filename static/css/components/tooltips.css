@@ -1,0 +1,40 @@
+/* === Tooltip Styles === */
+.tooltip-container {
+    display: inline-block;
+    position: relative;
+}
+
+.tooltip-text {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    bottom: 100%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    color: var(--text-color);
+    font-size: 12px;
+    left: 50%;
+    margin-bottom: 5px;
+    opacity: 0;
+    padding: 8px 12px;
+    pointer-events: none;
+    position: absolute;
+    transform: translateX(-50%);
+    transition: opacity 0.2s;
+    white-space: nowrap;
+    z-index: 1070;
+}
+
+.tooltip-container:hover .tooltip-text {
+    opacity: 1;
+}
+
+.tooltip-text::after {
+    border-color: var(--border-color) transparent transparent;
+    border-style: solid;
+    border-width: 5px;
+    content: "";
+    left: 50%;
+    margin-left: -5px;
+    position: absolute;
+    top: 100%;
+} 

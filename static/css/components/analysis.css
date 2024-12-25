@@ -1,0 +1,152 @@
+/* === Analysis Panel === */
+.analysis-panel {
+    display: grid;
+    gap: 15px;
+    grid-template-columns: repeat(3, 1fr);
+    margin-top: 20px;
+}
+
+.trend-analysis,
+.recommendations,
+.price-analysis {
+    background: var(--section-bg);
+    border-radius: 4px;
+    padding: 15px;
+}
+
+/* === Trend Analysis === */
+.trend-strength,
+.trend-direction,
+.position-recommendation,
+.smart-money-strategy {
+    border-radius: 4px;
+    margin: 4px 0;
+    padding: 8px;
+}
+
+.trend-strength.strong {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--green-color);
+}
+
+.trend-strength.moderate {
+    background: rgba(255, 152, 0, 0.1);
+    color: #ff9800;
+}
+
+.trend-strength.weak {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--red-color);
+}
+
+.trend-direction.up {
+    color: var(--green-color);
+}
+
+.trend-direction.down {
+    color: var(--red-color);
+}
+
+/* === Recommendations === */
+.position-recommendation {
+    font-weight: bold;
+}
+
+.position-recommendation.long {
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--green-color);
+}
+
+.position-recommendation.short {
+    background: rgba(244, 67, 54, 0.1);
+    color: var(--red-color);
+}
+
+.position-recommendation.hold {
+    background: rgba(158, 158, 158, 0.1);
+    color: #9e9e9e;
+}
+
+.chart-container {
+    height: 200px;
+    margin: 20px 0;
+    background: var(--section-bg);
+    border-radius: 4px;
+}
+
+.indicators-panel {
+    margin: 20px 0;
+}
+
+.indicators-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.indicator-card {
+    background: var(--section-bg);
+    padding: 15px;
+    border-radius: 4px;
+}
+
+#tradingChart {
+    width: 100%;
+    height: 400px;
+}
+
+.stats-container .chart-container {
+    height: 150px;
+    margin: 10px 0;
+}
+
+.indicator-value {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.oversold {
+    color: var(--green-color);
+}
+
+.overbought {
+    color: var(--red-color);
+}
+
+.indicator-4h {
+    font-size: 0.9em;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.macd-line, .signal-line {
+    margin: 2px 0;
+}
+
+.histogram {
+    font-weight: bold;
+}
+
+.histogram.positive {
+    color: var(--green-color);
+}
+
+.histogram.negative {
+    color: var(--red-color);
+}
+
+.dmi-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.plus-di.dominant {
+    color: var(--green-color);
+    font-weight: bold;
+}
+
+.minus-di.dominant {
+    color: var(--red-color);
+    font-weight: bold;
+} 

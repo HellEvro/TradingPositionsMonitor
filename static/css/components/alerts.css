@@ -1,0 +1,37 @@
+/* === Alert Styles === */
+.alert {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 15px;
+    padding: 12px 20px;
+}
+
+.alert-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.alert.info {
+    background: rgba(30, 136, 229, 0.1);
+    border-color: var(--blue-color);
+    color: var(--blue-color);
+}
+
+.alert.success {
+    background: rgba(76, 175, 80, 0.1);
+    border-color: var(--green-color);
+    color: var(--green-color);
+}
+
+.alert.warning {
+    background: rgba(255, 152, 0, 0.1);
+    border-color: #ff9800;
+    color: #ff9800;
+}
+
+.alert.error {
+    background: rgba(244, 67, 54, 0.1);
+    border-color: var(--red-color);
+    color: var(--red-color);
+} 

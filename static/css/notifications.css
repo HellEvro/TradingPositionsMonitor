@@ -1,0 +1,117 @@
+/* === Notifications === */
+.notification {
+    align-items: center;
+    animation: slideDown 0.3s ease-out;
+    background-color: var(--green-color);
+    border-radius: 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    color: white;
+    display: flex;
+    font-weight: 500;
+    gap: 10px;
+    left: 50%;
+    padding: 12px 24px;
+    position: fixed;
+    top: 20px;
+    transform: translateX(-50%);
+    z-index: 1100;
+}
+
+.notification .icon {
+    align-items: center;
+    display: flex;
+    font-size: 18px;
+    justify-content: center;
+    min-width: 24px;
+}
+
+.notification.success {
+    background-color: var(--green-color);
+}
+
+.notification.error {
+    background-color: var(--red-color);
+}
+
+.notification.warning {
+    background-color: #ff9800;
+}
+
+/* === Dialog Windows === */
+.confirm-dialog {
+    align-items: center;
+    background: rgba(0, 0, 0, 0.5);
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 1000;
+}
+
+.confirm-content {
+    background: var(--section-bg);
+    border-radius: 8px;
+    min-width: 300px;
+    padding: 20px;
+    text-align: center;
+}
+
+.confirm-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.confirm-btn {
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    padding: 8px 20px;
+}
+
+.confirm-yes {
+    background: var(--green-color);
+    color: white;
+}
+
+.confirm-no {
+    background: var(--red-color);
+    color: white;
+}
+
+/* === Error Notifications === */
+.error-notification {
+    animation: fadeInOut 3s ease-in-out;
+    background-color: var(--red-color);
+    border-radius: 5px;
+    color: white;
+    left: 50%;
+    padding: 15px 30px;
+    position: fixed;
+    top: 20px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* === Animations === */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -100%);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, 0);
+    }
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { opacity: 0; }
+} 

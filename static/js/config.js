@@ -11,6 +11,7 @@ const TRANSLATIONS = {
         profit: 'Прибыль по позициям',
         loss: 'Убыток по позициям',
         totalTrades: 'Всего сделок',
+        highProfitableTrades: '- высокоприбыльных сделок',
         profitableTrades: '- прибыльных сделок',
         losingTrades: '- убыточных сделок',
         topProfitable: 'TOP-3 Прибыльных',
@@ -70,7 +71,10 @@ const TRANSLATIONS = {
         order_type: 'Тип ордера',
         market_order: 'Рыночный',
         limit_order: 'Лимитный',
-        total_pnl: 'Общий PnL'
+        total_pnl: 'Общий PnL',
+        totalWalletBalance: 'Общий баланс',
+        totalAvailableBalance: 'Доступные средства',
+        cumulativeRealizedPnL: 'Общий P&L'
     },
     en: {
         theme: '🌓 Toggle Theme',
@@ -82,7 +86,8 @@ const TRANSLATIONS = {
         totalPnl: 'Total PnL',
         profit: 'Total Profit',
         loss: 'Total Loss',
-        totalTrades: 'Total Trades',
+        totalTrades: 'Total Trades',    
+        highProfitableTrades: '- high profitable trades',
         profitableTrades: '- profitable trades',
         losingTrades: '- losing trades',
         topProfitable: 'TOP-3 Profitable',
@@ -142,7 +147,10 @@ const TRANSLATIONS = {
         order_type: 'Order type',
         market_order: 'Market',
         limit_order: 'Limit',
-        total_pnl: 'Total PnL'
+        total_pnl: 'Total PnL',
+        totalWalletBalance: 'Total Balance',
+        totalAvailableBalance: 'Available Balance',
+        cumulativeRealizedPnL: 'Total P&L'
     }
 };
 

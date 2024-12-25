@@ -1,0 +1,179 @@
+# Подробная инструкция по установке InfoBot
+
+## Содержание
+1. [Системные требования](#системные-требования)
+2. [Установка Python](#установка-python)
+3. [Установка приложения](#установка-приложения)
+4. [Настройка](#настройка)
+5. [Запуск](#запуск)
+6. [Автозапуск](#автозапуск)
+
+## Системные требования
+
+### Минимальные требования:
+- Python 3.9-3.11 (рекомендуется 3.11)
+- 2 ГБ оперативной памяти
+- 500 МБ свободного места
+- Стабильное интернет-соединение
+
+### Поддерживаемые операционные системы:
+- Windows 10/11
+- Ubuntu 20.04+
+- Debian 11+
+- macOS 11+
+
+## Установка Python
+
+### Windows
+1. Скачайте Python 3.11 с [официального сайта](https://www.python.org/downloads/windows/)
+2. Запустите установщик
+3. ✅ Отметьте "Add Python to PATH"
+4. Нажмите "Install Now"
+5. Проверьте установку:
+   ```cmd
+   python --version
+   pip --version
+   ```
+
+### Linux (Ubuntu/Debian)
+```bash
+sudo apt update
+sudo apt install python3.11 python3.11-venv python3-pip git
+```
+
+### macOS
+```bash
+# Установка Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Установка Python
+brew install python@3.11
+```
+
+## Установка приложения
+
+1. Клонирование репозитория:
+   ```bash
+   git clone https://github.com/ваш-репозиторий/infobot.git
+   cd infobot
+   ```
+
+2. Создание виртуального окружения:
+   ```bash
+   python -m venv venv
+   ```
+
+3. Активация окружения:
+   ```bash
+   # Windows
+   venv\Scripts\activate
+   
+   # Linux/macOS
+   source venv/bin/activate
+   ```
+
+4. Установка зависимостей:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Настройка
+
+### Настройка окружения
+1. Создайте файл `.env`:
+   ```
+   # Bybit API
+   BYBIT_API_KEY=ваш_ключ
+   BYBIT_API_SECRET=ваш_секрет
+   
+   # Binance API
+   BINANCE_API_KEY=ваш_ключ
+   BINANCE_API_SECRET=ваш_секрет
+   
+   # OKX API
+   OKX_API_KEY=ваш_ключ
+   OKX_API_SECRET=ваш_секрет
+   OKX_PASSPHRASE=ваш_пароль
+   
+   # Telegram
+   TELEGRAM_BOT_TOKEN=токен_бота
+   TELEGRAM_CHAT_ID=id_чата
+   ```
+
+### Настройка конфигурации
+1. Скопируйте пример конфигурации:
+   ```bash
+   cp config.example.py config.py
+   ```
+2. Отредактируйте `config.py`
+
+## Запуск
+
+1. Активируйте виртуальное окружение
+2. Запустите приложение:
+   ```bash
+   python app.py
+   ```
+3. Откройте в браузере: http://localhost:5000
+
+## Автозапуск
+
+### Windows
+1. Создайте файл `start_infobot.bat`:
+   ```batch
+   @echo off
+   cd C:\путь\к\проекту
+   call venv\Scripts\activate
+   python app.py
+   ```
+2. Создайте ярлык в автозагрузке (Win+R → shell:startup)
+
+### Linux (systemd)
+1. Создайте сервис:
+   ```bash
+   sudo nano /etc/systemd/system/infobot.service
+   ```
+   ```ini
+   [Unit]
+   Description=InfoBot Trading Monitor
+   After=network.target
+   
+   [Service]
+   User=ваш_пользователь
+   WorkingDirectory=/путь/к/проекту
+   Environment="PATH=/путь/к/проекту/venv/bin"
+   ExecStart=/путь/к/проекту/venv/bin/python app.py
+   Restart=always
+   
+   [Install]
+   WantedBy=multi-user.target
+   ```
+
+2. Активируйте сервис:
+   ```bash
+   sudo systemctl enable infobot
+   sudo systemctl start infobot
+   ```
+
+## Проверка установки
+
+1. Проверьте логи:
+   ```bash
+   tail -f logs/infobot.log
+   ```
+
+2. Проверьте статус сервиса (Linux):
+   ```bash
+   sudo systemctl status infobot
+   ```
+
+3. Откройте веб-интерфейс: http://localhost:5000
+
+## Решение проблем
+
+При возникновении проблем:
+1. Проверьте логи в папке `logs/`
+2. Убедитесь в правильности API ключей
+3. Проверьте подключение к интернету
+4. Проверьте доступность бирж
+5. Обратитесь к [FAQ](faq.md) 

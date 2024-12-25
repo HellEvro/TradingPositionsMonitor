@@ -1,0 +1,157 @@
+/* === Button Base === */
+.button, .tab-button {
+    background-color: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    color: var(--text-color);
+    cursor: pointer;
+    margin: 0 5px;
+    padding: 10px 20px;
+    transition: all 0.3s ease;
+}
+
+.button:hover, .tab-button:hover {
+    background-color: var(--border-color);
+}
+
+.button:disabled, .tab-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.tab-button.active {
+    background-color: var(--green-color);
+    color: white;
+}
+
+/* === Action Buttons === */
+.update-btn {
+    background-color: var(--green-color);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 5px 15px;
+    transition: background-color 0.3s;
+}
+
+.update-btn:hover {
+    background-color: #45a049;
+}
+
+.update-btn:active {
+    background-color: #3d8b40;
+}
+
+/* === Close Buttons === */
+.close-position-btn {
+    background: none;
+    border: none;
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 14px;
+    opacity: 0.7;
+    padding: 4px 8px;
+    transition: all 0.2s;
+}
+
+.close-position-btn:hover {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+    opacity: 1;
+}
+
+/* === Clear Buttons === */
+.clear-button {
+    background-color: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    color: var(--text-color);
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 0.9em;
+    margin-left: 15px;
+    padding: 5px 15px;
+    transition: all 0.3s ease;
+}
+
+.clear-button:hover {
+    background-color: var(--border-color);
+}
+
+/* === Action Button Styles === */
+.action-btn {
+    background: none;
+    border: 2px solid var(--border-color);
+    border-radius: 50%;
+    color: var(--text-color);
+    cursor: pointer;
+    height: 40px;
+    padding: 0;
+    transition: all 0.3s;
+    width: 40px;
+}
+
+.action-btn:hover {
+    border-color: var(--blue-color);
+    color: var(--blue-color);
+}
+
+.pair-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.market-buy-btn,
+.limit-buy-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.market-buy-btn {
+    background: var(--green-color);
+    color: white;
+}
+
+.limit-buy-btn {
+    background: var(--blue-color);
+    color: white;
+}
+
+.blacklist-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--red-color);
+    background: transparent;
+    color: var(--red-color);
+    cursor: pointer;
+}
+
+/* Trading buttons */
+.trading-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.start-btn {
+    background: var(--green-color);
+    color: white;
+}
+
+.stop-btn {
+    background: var(--red-color);
+    color: white;
+}
+
+.trading-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+} 

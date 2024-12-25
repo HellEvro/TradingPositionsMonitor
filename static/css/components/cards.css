@@ -1,0 +1,27 @@
+/* === Card Styles === */
+.card {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 15px;
+    padding: 15px;
+}
+
+.card-header {
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+}
+
+.card-title {
+    font-size: 1.1em;
+    font-weight: bold;
+    margin: 0;
+}
+
+.card-content {
+    padding: 10px 0;
+} 

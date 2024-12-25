@@ -1,0 +1,34 @@
+/* === Panel Styles === */
+.panel {
+    background: var(--section-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.panel-header {
+    align-items: center;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+}
+
+.panel-title {
+    font-size: 16px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.panel-body {
+    padding: 15px;
+}
+
+.panel-footer {
+    align-items: center;
+    background: var(--section-bg);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+} 
