@@ -186,7 +186,8 @@ class OkxExchange(BaseExchange):
                                 'closed_pnl': total_pnl,
                                 'close_time': datetime.fromtimestamp(
                                     int(position.get('uTime', time.time() * 1000)) / 1000
-                                ).strftime('%Y-%m-%d %H:%M:%S')
+                                ).strftime('%Y-%m-%d %H:%M:%S'),
+                                'exchange': 'okx'
                             }
                             all_closed_pnl.append(pnl_record)
                             
@@ -340,7 +341,7 @@ class OkxExchange(BaseExchange):
                     'message': 'Could not get current price'
                 }
             
-            # Определяем направление закры��ия
+            # Определяем направление закрытия
             close_side = "sell" if side == "Long" else "buy"
             
             # Базовые параметры ордера

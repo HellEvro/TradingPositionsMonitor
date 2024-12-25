@@ -461,7 +461,7 @@ class App {
                 <tr>
                     <td class="ticker-cell">
                         <span class="ticker">${pnl.symbol}</span>
-                        <a href="https://www.bybit.com/trade/usdt/${pnl.symbol}USDT" 
+                        <a href="${createTickerLink(pnl.symbol, pnl.exchange)}" 
                            target="_blank" 
                            class="external-link"
                            title="Открыть на бирже">

@@ -187,13 +187,14 @@ class BybitExchange(BaseExchange):
                         for pos in positions:
                             pnl_record = {
                                 'symbol': clean_symbol(pos['symbol']),
-                                'qty': float(pos.get('qty', 0)),
+                                'qty': abs(float(pos.get('qty', 0))),
                                 'entry_price': float(pos.get('avgEntryPrice', 0)),
                                 'exit_price': float(pos.get('avgExitPrice', 0)),
                                 'closed_pnl': float(pos.get('closedPnl', 0)),
                                 'close_time': datetime.fromtimestamp(
-                                    int(pos.get('updatedTime', 0))/1000
-                                ).strftime('%Y-%m-%d %H:%M:%S')
+                                    int(pos.get('updatedTime', time.time() * 1000)) / 1000
+                                ).strftime('%Y-%m-%d %H:%M:%S'),
+                                'exchange': 'bybit'
                             }
                             all_closed_pnl.append(pnl_record)
                             

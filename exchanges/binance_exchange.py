@@ -133,7 +133,8 @@ class BinanceExchange(BaseExchange):
                             'closed_pnl': trade_data['realized_pnl'],
                             'close_time': datetime.fromtimestamp(
                                 trade_data['time']/1000
-                            ).strftime('%Y-%m-%d %H:%M:%S')
+                            ).strftime('%Y-%m-%d %H:%M:%S'),
+                            'exchange': 'binance'
                         }
                         all_closed_pnl.append(pnl_record)
                     
@@ -472,7 +473,7 @@ class BinanceExchange(BaseExchange):
                             selected_klines = klines
                             print(f"[BINANCE] Использован последний интервал {interval_name} ({len(klines)} свечей)")
                     except Exception as e:
-                        print(f"[BINANCE] Ошибка при получении данных для интервала {interval_name}: {e}")
+                        print(f"[BINANCE] О��ибка при получении данных для интервала {interval_name}: {e}")
                         continue
                 
                 if selected_interval and selected_klines:
