@@ -112,8 +112,8 @@ MIT License. Подробности в файле [LICENSE](LICENSE)
 
 ## Автор
 
-- Telegram: @ваш_контакт
-- Email: ваш@email.com
+- Telegram: @esrodchenkov
+- Email: esrodchenkov@email.com
 
 ---
 ⭐ Если проект оказался полезным, поставьте звезду на GitHub!
